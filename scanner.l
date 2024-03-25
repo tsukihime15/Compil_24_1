@@ -1,15 +1,51 @@
 %{
 #include "tokens.h"
 
-int lineNumber = 1;
 %}
+%option   noyywrap
+%option   yylineno
+
+%x comment
+
+numero    [0-9]
+id        [a-z_][a-z_0-9]*
 %%
 
-"int"      {return TK_PR_INT;}
+"int"             {return TK_PR_INT;}
+"float"           {return TK_PR_FLOAT;}
+"bool"            {return TK_PR_BOOL;}
+"if"              {return TK_PR_IF;}
+"else"            {return TK_PR_ELSE;}
+"while"           {return TK_PR_WHILE;}
+"return"          {return TK_PR_RETURN;}
+
+{id}              {return TK_IDENTIFICADOR;}  
+
+{numero}*"."{numero}+    {return TK_LIT_FLOAT;}
+[0-9]+            {return TK_LIT_INT;}
+
+"<="              {return TK_OC_LE;}
+">="              {return TK_OC_GE;}
+"=="              {return TK_OC_EQ;}
+"!="              {return TK_OC_NE;}
+"&"               {return TK_OC_AND;}
+"|"               {return TK_OC_OR;}
+
+"//"               {}
+
+"/*"               BEGIN(comment);
+
+"-"|"!"|"*"|"/"|"%"|"+"|"-"|"<"|">"|"{"|"}"|"("|")"|"="|","|";"  {return yytext;}
+
+.                  {return TK_ERRO;}
+
+<comment> [^*]    {}
+<comment> "*/"    BEGIN(INITIAL);
+<comment> .       {return TK_ERRO;}
 
 %%
 
 int get_line_number()
 {
-  return lineNumber;
+  return yylineno;
 }
