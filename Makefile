@@ -1,6 +1,6 @@
 DIR =./
 CC=gcc
-CFLAGS =.I$(DIR)
+CFLAGS =-I$(DIR)
 
 _DEPS = tokens.h
 DEPS = $(patsubst %, $(DIR)/%,$(_DEPS))
