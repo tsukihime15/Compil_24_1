@@ -1,6 +1,6 @@
 DIR =./
 CC=gcc
-CFLAGS =.I$(IDIR)
+CFLAGS =.I$(DIR)
 
 _DEPS = tokens.h
 DEPS = $(patsubst %, $(DIR)/%,$(_DEPS))
@@ -9,17 +9,17 @@ _OBJ = main.o lex.yy.o
 OBJ = $(patsubst %,$(DIR)/%,$(_OBJ))
 
 $(DIR)/%.o: %.c $(DEPS)
-  $(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 all: scanner etapa1
 
 scanner: scanner.l
-  flex scanner.l
+	flex scanner.l
 
 etapa1: $(OBJ)
-  $(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS)
 
 .PHONY: clean
 
 clean:
-  rm -f $(DIR)/*.o etapa1
+	rm -f $(DIR)/*.o etapa1
