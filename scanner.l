@@ -31,17 +31,18 @@ id        [a-z_][a-z_0-9]*
 "&"               {return TK_OC_AND;}
 "|"               {return TK_OC_OR;}
 
-"//"               {}
+"//".*
+
+[-,;(){}+*/%<>|&~=\[\]] {return yytext[0];}
+[\t\n]
 
 "/*"               BEGIN(comment);
 
-"-"|"!"|"*"|"/"|"%"|"+"|"-"|"<"|">"|"{"|"}"|"("|")"|"="|","|";"  {return yytext;}
-
 .                  {return TK_ERRO;}
 
-<comment> [^*]    {}
-<comment> "*/"    BEGIN(INITIAL);
-<comment> .       {return TK_ERRO;}
+<comment>[^*\n]*
+<comment>"*"+[^*/\n]*
+<comment>"*"+"/"  BEGIN(INITIAL);
 
 %%
 
