@@ -19,10 +19,13 @@ id        [a-z_][a-z_0-9]*
 "while"           {return TK_PR_WHILE;}
 "return"          {return TK_PR_RETURN;}
 
+"false"           {return TK_LIT_FALSE;}
+"true"            {return TK_LIT_TRUE;}
+
 {id}              {return TK_IDENTIFICADOR;}  
 
 {numero}*"."{numero}+    {return TK_LIT_FLOAT;}
-[0-9]+            {return TK_LIT_INT;}
+{numero}+                {return TK_LIT_INT;}
 
 "<="              {return TK_OC_LE;}
 ">="              {return TK_OC_GE;}
@@ -34,7 +37,7 @@ id        [a-z_][a-z_0-9]*
 "//".*
 
 [-,;(){}+*/%<>|&~=\[\]] {return yytext[0];}
-[\t\n]
+[ \t\n]
 
 "/*"               BEGIN(comment);
 
