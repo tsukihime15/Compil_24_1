@@ -1,25 +1,17 @@
-DIR =./
 CC=gcc
-CFLAGS =-I$(DIR)
+CFLAGS =-I.
 
-_DEPS = tokens.h
-DEPS = $(patsubst %, $(DIR)/%,$(_DEPS))
-
-_OBJ = main.o lex.yy.o
-OBJ = $(patsubst %,$(DIR)/%,$(_OBJ))
-
-$(DIR)/%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
-
-all: scanner etapa1
-
-scanner: scanner.l
-	flex scanner.l
+DEPS = tokens.h
+OBJ = main.o lex.yy.o
 
 etapa1: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-.PHONY: clean
+main.o lex.yy.o : $(DEPS)
 
+lex.yy.c: scanner.l
+	flex scanner.l
+
+.PHONY: clean
 clean:
-	rm -f $(DIR)/*.o etapa1
+	rm *.o *.yy.c etapa1
