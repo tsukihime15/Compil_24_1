@@ -1,4 +1,5 @@
 %{
+/* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342  */
 #include "parser.tab.h"
 
 %}
@@ -44,6 +45,7 @@ id        [a-z_][a-z_0-9]*
 .                  {return TK_ERRO;}
 
 <comment>[^*\n]*
+<comment>"/*"
 <comment>"*"+[^*/\n]*
 <comment>"*"+"/"  BEGIN(INITIAL);
 
