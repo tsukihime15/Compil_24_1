@@ -1,4 +1,5 @@
 %{
+  /* Gessica e Jessica - Turma A - 2024/01 */
 #include "tokens.h"
 
 %}
@@ -36,15 +37,16 @@ id        [a-z_][a-z_0-9]*
 
 "//".*
 
-[-,;(){}+*/%<>|&~=\[\]] {return yytext[0];}
+[-,;(){}+*/%<>|&~=!] {return yytext[0];}
 [ \t\n]
 
 "/*"               BEGIN(comment);
 
 .                  {return TK_ERRO;}
 
-<comment>[^*\n]*
-<comment>"*"+[^*/\n]*
+<comment>[^*]*
+<comment>"/*"   
+<comment>"*"+[^*/]*
 <comment>"*"+"/"  BEGIN(INITIAL);
 
 %%
