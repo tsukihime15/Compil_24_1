@@ -2,7 +2,6 @@
 int yylex(void);
 void yyerror (char const *mensagem);
 %}
-%define parse.error
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
@@ -22,7 +21,6 @@ void yyerror (char const *mensagem);
 %token TK_LIT_FALSE
 %token TK_LIT_TRUE
 %token TK_ERRO
-
 %%
 // Símbolo inicial
 programa: var func;
@@ -52,8 +50,8 @@ fcall: ',';
 return: ',';
 // Controle de Fluxo
 cflow: ',';
-expr:
-operand:
-operator:
+expr: ',';
+operand: ',';
+operator: ',';
 
 %%

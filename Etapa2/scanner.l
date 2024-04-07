@@ -37,16 +37,16 @@ id        [a-z_][a-z_0-9]*
 
 "//".*
 
-[-,;(){}+*/%<>|&~=\[\]] {return yytext[0];}
+[-,;(){}+*/%<>|&~=!] {return yytext[0];}
 [ \t\n]
 
 "/*"               BEGIN(comment);
 
 .                  {return TK_ERRO;}
 
-<comment>[^*\n]*
+<comment>[^*]*
 <comment>"/*"
-<comment>"*"+[^*/\n]*
+<comment>"*"+[^*/]*
 <comment>"*"+"/"  BEGIN(INITIAL);
 
 %%
