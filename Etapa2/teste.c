@@ -57,3 +57,18 @@ int _34ds,
 () | int / ds {return ! adsa,}
 () | int / ds {return ( adsa),}
 
+//teste expressao com literais
+() | int / ds {aa=2+2,}
+() | int / ds {aa=2-2,}
+() | int / ds {aa=2*2,}
+() | int / ds {aa=2%2,}
+
+//teste expressao com 3 operandos
+() | int / ds {aa=2+2+2,}
+() | int / ds {aa=2-2-2,}
+() | int / ds {aa=2*2*2,}
+() | int / ds {aa=2%2%2,}
+
+//teste expressao com multiplos op unarios
+() | int / ds {aa=!!!!2,}
+() | int / ds {aa=----1,}

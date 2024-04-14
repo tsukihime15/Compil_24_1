@@ -70,7 +70,7 @@ expr5: expr5 '<' expr4 | expr5 '>' expr4 | expr5 TK_OC_LE expr4
      | expr5 TK_OC_GE expr4 | expr4;
 expr4: expr4 '+' expr3 | expr4 '-' expr3 | expr3;
 expr3: expr3 '*' expr2 | expr3 '/' expr2 | expr3 '%' expr2 | expr2;
-expr2: '-' expr1 | '!' expr1 | expr1;
+expr2: '-' expr2 | '!' expr2 | expr1;
 expr1: '(' expr0 ')'| expr0;
 expr0: operand;
 
