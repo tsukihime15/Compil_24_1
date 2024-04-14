@@ -1,17 +1,20 @@
-DEPS: parser flex etapa2
-OBJ: main.o lex.yy.o parser.tab.o
+CC=gcc
+CFLAGS =-I.
 
-etapa2:: $(OBJ)
-	gcc -c parser.tab.c lex.yy.c main.c
-	gcc -o etapa2 lex.yy.o parser.tab.o main.o -ly
+DEPS = parser.tab.h
+OBJ = main.o lex.yy.o parser.tab.o
+
+etapa2: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
 
 main.o lex.yy.o parser.tab.o: $(DEPS)
 
-parser: parser.y
+parser.tab.c parser.tab.h: parser.y
 	bison -d parser.y
 
-flex: scanner.l
+lex.yy.c: scanner.l
 	flex scanner.l
 
+.PHONY: clean
 clean:
-	rm etapa2 lex.yy.c parser.tab.c parser.tab.h lex.yy.o main.o parser.tab.o
+	rm *.o *.yy.c *.tab.* etapa

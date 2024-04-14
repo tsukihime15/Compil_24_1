@@ -37,7 +37,7 @@ id        [a-z_][a-z_0-9]*
 
 "//".*
 
-[-,;(){}+*/%<>|&~=!] {return yytext[0];}
+[-,;(){}+*/%<>|~=!] {return yytext[0];}
 [ \t\n]
 
 "/*"               BEGIN(comment);
@@ -54,4 +54,10 @@ id        [a-z_][a-z_0-9]*
 int get_line_number()
 {
   return yylineno;
+}
+void yyerror (char const *mensagem)
+{
+    fprintf(stderr, "%s",mensagem);
+    fprintf(stderr,"\nSyntax error at line %d.",get_line_number());
+    fprintf(stderr,"\nToken %s\n",yytext);
 }
