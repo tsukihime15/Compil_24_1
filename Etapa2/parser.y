@@ -46,7 +46,7 @@ param: type TK_IDENTIFICADOR;
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block;
 command_block: '{' command_list '}';
-command_list: command_list simple_command ',' | simple_command ',' | ',';
+command_list: command_list simple_command ',' | simple_command ',' | ;
 simple_command: command_block | decl | atr |fcall | return | cflow;
 // Chamada de Atribuição
 atr: TK_IDENTIFICADOR '=' expr ;
@@ -62,7 +62,7 @@ cflow: TK_PR_IF '(' expr ')' command_block else_command
 else_command: TK_PR_ELSE command_block | ;
 
 //Expressao
-expr: expr8 ;
+expr: expr8 | ;
 expr8: expr8 TK_OC_OR expr7 | expr7;
 expr7: expr7 TK_OC_AND expr6 | expr6;
 expr6: expr6 TK_OC_EQ expr5 | expr6 TK_OC_NE expr5 | expr5;
@@ -71,7 +71,7 @@ expr5: expr5 '<' expr4 | expr5 '>' expr4 | expr5 TK_OC_LE expr4
 expr4: expr4 '+' expr3 | expr4 '-' expr3 | expr3;
 expr3: expr3 '*' expr2 | expr3 '/' expr2 | expr3 '%' expr2 | expr2;
 expr2: '-' expr2 | '!' expr2 | expr1;
-expr1: '(' expr0 ')'| expr0;
+expr1: '(' expr1 ')'| expr0;
 expr0: operand;
 
 operand: TK_IDENTIFICADOR | literal | fcall;
