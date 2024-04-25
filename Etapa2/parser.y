@@ -1,4 +1,5 @@
 %{
+/* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342  */
 #include <stdio.h>
 int yylex(void);
 int yyparse(void);
@@ -45,8 +46,9 @@ params_list: params_list ';' param | param;
 param: type TK_IDENTIFICADOR;
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block;
+command_block: '{' '}';
 command_block: '{' command_list '}';
-command_list: command_list simple_command ',' | simple_command ',' | ;
+command_list: command_list simple_command ',' | simple_command ',';
 simple_command: command_block | decl | atr |fcall | return | cflow;
 // Chamada de Atribuição
 atr: TK_IDENTIFICADOR '=' expr ;
@@ -71,11 +73,9 @@ expr5: expr5 '<' expr4 | expr5 '>' expr4 | expr5 TK_OC_LE expr4
 expr4: expr4 '+' expr3 | expr4 '-' expr3 | expr3;
 expr3: expr3 '*' expr2 | expr3 '/' expr2 | expr3 '%' expr2 | expr2;
 expr2: '-' expr2 | '!' expr2 | expr1;
-expr1: '(' expr1 ')'| expr0;
+expr1: '(' expr ')'| expr0;
 expr0: operand;
 
 operand: TK_IDENTIFICADOR | literal | fcall;
 literal: TK_LIT_INT | TK_LIT_FLOAT | TK_LIT_FALSE | TK_LIT_TRUE;
 %%
-
-
