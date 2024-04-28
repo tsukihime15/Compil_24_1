@@ -4,7 +4,7 @@ CFLAGS =-I.
 DEPS = tokens.h
 OBJ = main.o lex.yy.o
 
-etapa1: $(OBJ)
+etapa2: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 main.o lex.yy.o : $(DEPS)
@@ -14,4 +14,4 @@ lex.yy.c: scanner.l
 
 .PHONY: clean
 clean:
-	rm *.o *.yy.c etapa1
+	rm *.o *.yy.c etapa2
