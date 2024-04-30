@@ -17,4 +17,4 @@ lex.yy.c: scanner.l
 
 .PHONY: clean
 clean:
-	rm *.o *.yy.c *.tab.* etapa
+	rm *.o *.yy.c *.tab.* etapa*
