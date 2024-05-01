@@ -12,22 +12,6 @@ NODO* createNodo(VALOR_LEXICO valor_lexico)
     return nodo;
 }
 
-NODO* createNodoToFunctionCall(VALOR_LEXICO valor_lexico)
-{
-    NODO* nodo = createNodo(valor_lexico);
-
-    char* start = "call ";
-    char* novo_valor = malloc(strlen(start) + strlen(nodo->valor_lexico.valor) + 1);
-
-    strcpy(novo_valor, start);
-    strcat(novo_valor, nodo->valor_lexico.valor);
-
-    free(nodo->valor_lexico.valor);
-    nodo->valor_lexico.valor = novo_valor;
-
-    return nodo;
-}
-
 void addFilho(NODO* pai, NODO* filho)
 {
     if (!filho) return;
@@ -78,20 +62,20 @@ void exporta(NODO* nodo)
 {
     if (!nodo) return;
 
-    printHeader(nodo);
+    printValorLexico(nodo);
     printArvore(nodo);
 }
 
-void printHeader(NODO* nodo)
+void printValorLexico(NODO* nodo)
 {
-    printf("%p [valor=\"%s\"];\n", nodo, nodo->valor_lexico.valor);
+    printf("%p [label=\"%s\"];\n", nodo, nodo->valor_lexico.valor);
     if (nodo->filho)
     {
-        printHeader(nodo->filho);
+        printValorLexico(nodo->filho);
     }
     if (nodo->irmao)
     {
-        printHeader(nodo->irmao);
+        printValorLexico(nodo->irmao);
     }
 }
 

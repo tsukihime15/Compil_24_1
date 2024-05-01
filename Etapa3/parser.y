@@ -45,39 +45,68 @@ extern void* arvore;
 %token<valor_lexico> TK_LIT_TRUE
 %token<valor_lexico> TK_ERRO
 
+%token<valor_lexico> '-'
+%token<valor_lexico> '+'
+%token<valor_lexico> '*'
+%token<valor_lexico> '/'
+%token<valor_lexico> '%'
+%token<valor_lexico> '<'
+%token<valor_lexico> '>'
+%token<valor_lexico> '|'
+%token<valor_lexico> '~'
+%token<valor_lexico> '='
+%token<valor_lexico> '!'
+%token<valor_lexico> '('
+
 %type<nodo> programa
 %type<nodo> program_list
-%type<nodo> decl
+%type<nodo> func
+%type<nodo> body
+%type<nodo> command_block
+%type<nodo> command_list
+%type<nodo> simple_command
+%type<nodo> atr
+%type<nodo> expr
+%type<nodo> expr8
+%type<nodo> expr7
+%type<nodo> expr6
+%type<nodo> expr5
+%type<nodo> expr4
+%type<nodo> expr3
+%type<nodo> expr2
+%type<nodo> expr1
+%type<nodo> expr0
+%type<nodo> operand
+%type<nodo> literal
+%type<nodo> fcall
 
-%type<nodo> id_list
-%type<nodo> type
 
 %%
 // Símbolo inicial
 programa: program_list                       {$$ = $1; arvore = $$;}
      ;                      
-program_list: program_list decl ','          {$$ = $2;}
-     | program_list func                     //{$$ = $2;}
+program_list: program_list decl ','          {$$ = NULL;} /* nao fazer p/ decl */
+     | program_list func                     {$$ = $2;}
      |                                       {$$ = NULL;}
      ;
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis
-decl: type id_list TK_IDENTIFICADOR          {$$ = createNodo($3);}
+decl: type id_list TK_IDENTIFICADOR          /* nao fazer p/ decl */
      ;
 // Lista de identificadores
-id_list: id_list TK_IDENTIFICADOR ';'        {$$ = createNodo($2);}
-     |                                       {$$ = NULL;}
+id_list: id_list TK_IDENTIFICADOR ';'        /* nao fazer p/ decl */
+     |                                       
      ;
 // Tipos
-type: TK_PR_INT          {$$ = createNodo($1);}
-     | TK_PR_FLOAT       {$$ = createNodo($1);}
-     | TK_PR_BOOL        {$$ = createNodo($1);}
+type: TK_PR_INT          
+     | TK_PR_FLOAT       
+     | TK_PR_BOOL        
      ;
 // Função => cabeçalho e corpo
-func: header body
+func: header body                            {$$ = $2;}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '(' params_list_void ')' TK_OC_OR type '/' TK_IDENTIFICADOR
+header: '(' params_list_void ')' TK_OC_OR type '/' TK_IDENTIFICADOR   
      ;
 // Params: Tipo e lista de parâmetros
 params_list_void: params_list 
@@ -89,27 +118,30 @@ params_list: params_list ';' param
 param: type TK_IDENTIFICADOR
      ;
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
-body: command_block
+body: command_block                               {$$ = $1;}
      ;
-command_block: '{' '}'
+command_block: '{' '}'                            {$$ = NULL;}
      ;
-command_block: '{' command_list '}'
+command_block: '{' command_list '}'               {$$ = $2;}
      ;
-command_list: command_list simple_command ',' 
-     | simple_command ','
+command_list: command_list simple_command ','     {$$ = $2;}
+     | simple_command ','                         {$$ = $1;}
      ;
-simple_command: command_block 
-     | decl 
-     | atr 
-     |fcall 
-     | return 
-     | cflow
+simple_command: command_block      {$$ = $1;}
+     | decl                        {$$ = NULL;}
+     | atr                         {$$ = $1;}
+     | fcall                       {$$ = NULL;}
+     | return                      {$$ = NULL;}
+     | cflow                       {$$ = NULL;}
      ;
 // Chamada de Atribuição
-atr: TK_IDENTIFICADOR '=' expr 
+atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
+                                    addFilho($$, createNodo($1));
+                                    addFilho($$, $3);
+                                   }
      ;
 // Chamada de Função
-fcall: TK_IDENTIFICADOR '(' args_list ')'
+fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = NULL;}
      ;
 // NAO ACEITA argumentos vazio()
 args_list: args_list ';' expr 
@@ -127,51 +159,96 @@ else_command: TK_PR_ELSE command_block
      ;
 
 //Expressao
-expr: expr8 
-     | 
+expr: expr8                   {$$ = $1;}
+     |                        {$$ = NULL;}
      ;
-expr8: expr8 TK_OC_OR expr7 
-     | expr7
+expr8: expr8 TK_OC_OR expr7   {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr7                  {$$ = $1;}
      ;
-expr7: expr7 TK_OC_AND expr6 
-     | expr6
+expr7: expr7 TK_OC_AND expr6  {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr6                  {$$ = $1;}
      ;
-expr6: expr6 TK_OC_EQ expr5 
-     | expr6 TK_OC_NE expr5 
-     | expr5
+expr6: expr6 TK_OC_EQ expr5   {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr6 TK_OC_NE expr5   {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr5                  {$$ = $1;}
      ;
-expr5: expr5 '<' expr4 
-     | expr5 '>' expr4 
-     | expr5 TK_OC_LE expr4 
-     | expr5 TK_OC_GE expr4 
-     | expr4
+expr5: expr5 '<' expr4        {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr5 '>' expr4        {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr5 TK_OC_LE expr4   {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr5 TK_OC_GE expr4   {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr4                  {$$ = $1;}
      ;
-expr4: expr4 '+' expr3 
-     | expr4 '-' expr3 
-     | expr3
+expr4: expr4 '+' expr3        {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr4 '-' expr3        {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr3                  {$$ = $1;}
      ;
-expr3: expr3 '*' expr2 
-     | expr3 '/' expr2 
-     | expr3 '%' expr2 
-     | expr2
+expr3: expr3 '*' expr2        {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr3 '/' expr2        {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr3 '%' expr2        {$$ = createNodo($2);
+                               addFilho($$, $1);
+                               addFilho($$, $3);
+                              }
+     | expr2                  {$$ = $1;}
      ;
-expr2: '-' expr2 
-     | '!' expr2 
-     | expr1
+expr2: '-' expr2              {$$ = createNodo($1);
+                               addFilho($$, $2);
+                              }
+     | '!' expr2              {$$ = createNodo($1);
+                               addFilho($$, $2);
+                              }
+     | expr1                  {$$ = $1;}
      ;
-expr1: '(' expr ')'
-     | expr0
+expr1: '(' expr ')'           {$$ = createNodo($1);
+                               addFilho($$, $2);
+                              }
+     | expr0                  {$$ = $1;}
      ;
-expr0: operand
+expr0: operand                {$$ = $1;}
      ;
 
-operand: TK_IDENTIFICADOR 
-     | literal 
-     | fcall
+operand: TK_IDENTIFICADOR     {$$ = createNodo($1);}
+     | literal                {$$ = $1;}
+     | fcall                  {$$ = $1;}
      ;
-literal: TK_LIT_INT 
-     | TK_LIT_FLOAT 
-     | TK_LIT_FALSE 
-     | TK_LIT_TRUE
+literal: TK_LIT_INT           {$$ = createNodo($1);}
+     | TK_LIT_FLOAT           {$$ = createNodo($1);}
+     | TK_LIT_FALSE           {$$ = createNodo($1);}
+     | TK_LIT_TRUE            {$$ = createNodo($1);}
      ;
 %%

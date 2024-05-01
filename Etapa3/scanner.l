@@ -24,8 +24,8 @@ id        [a-z_][a-z_0-9]*
 "while"           {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_WHILE;}
 "return"          {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_RETURN;}
 
-"false"           {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_LIT_FALSE;}
-"true"            {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_LIT_TRUE;}
+"false"           {yylval.valor_lexico = createValorLexico(yytext, LITERAL, yylineno); return TK_LIT_FALSE;}
+"true"            {yylval.valor_lexico = createValorLexico(yytext, LITERAL, yylineno); return TK_LIT_TRUE;}
 
 {id}              {yylval.valor_lexico = createValorLexico(yytext, IDENTIFICADOR, yylineno); return TK_IDENTIFICADOR;}  
 

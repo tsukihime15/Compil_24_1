@@ -18,7 +18,7 @@ void addFilho(NODO* pai, NODO* filho);
 NODO* getUltimoFilho(NODO* pai);
 void removeNodo(NODO* node);
 void exporta(NODO* node);
-void printHeader(NODO* node);
+void printValorLexico(NODO* node);
 void printArvore(NODO* node);
 
 #endif
