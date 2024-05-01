@@ -61,6 +61,7 @@ extern void* arvore;
 %type<nodo> programa
 %type<nodo> program_list
 %type<nodo> func
+%type<nodo> header
 %type<nodo> body
 %type<nodo> command_block
 %type<nodo> command_list
@@ -79,14 +80,20 @@ extern void* arvore;
 %type<nodo> operand
 %type<nodo> literal
 %type<nodo> fcall
+%type<nodo> args_list
 
 
 %%
 // Símbolo inicial
 programa: program_list                       {$$ = $1; arvore = $$;}
      ;                      
-program_list: program_list decl ','          {$$ = NULL;} /* nao fazer p/ decl */
-     | program_list func                     {$$ = $2;}
+program_list: program_list decl ','          {$$ = $1;} /* nao fazer p/ decl */
+     | program_list func                     {if($1 != NULL){
+                                                  addFilho($1,$2);
+                                                  $$ = $1;}
+                                              else
+                                                  $$ = $2;
+                                             }
      |                                       {$$ = NULL;}
      ;
 // Variáveis globais => Tipo e Lista de identificadores
@@ -103,10 +110,11 @@ type: TK_PR_INT
      | TK_PR_BOOL        
      ;
 // Função => cabeçalho e corpo
-func: header body                            {$$ = $2;}
+func: header body                            {addFilho($1,$2);
+                                              $$ = $1;}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '(' params_list_void ')' TK_OC_OR type '/' TK_IDENTIFICADOR   
+header: '(' params_list_void ')' TK_OC_OR type '/' TK_IDENTIFICADOR   {$$ = createNodo($7);}
      ;
 // Params: Tipo e lista de parâmetros
 params_list_void: params_list 
@@ -120,17 +128,20 @@ param: type TK_IDENTIFICADOR
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block                               {$$ = $1;}
      ;
+// Aceita bloco com comando vazio 
 command_block: '{' '}'                            {$$ = NULL;}
      ;
 command_block: '{' command_list '}'               {$$ = $2;}
      ;
-command_list: command_list simple_command ','     {$$ = $2;}
+command_list: command_list simple_command ','     {addFilho($1,$2);
+                                                   $$ = $1;
+                                                  }
      | simple_command ','                         {$$ = $1;}
      ;
 simple_command: command_block      {$$ = $1;}
      | decl                        {$$ = NULL;}
      | atr                         {$$ = $1;}
-     | fcall                       {$$ = NULL;}
+     | fcall                       {$$ = $1;}
      | return                      {$$ = NULL;}
      | cflow                       {$$ = NULL;}
      ;
@@ -141,11 +152,12 @@ atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
                                    }
      ;
 // Chamada de Função
-fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = NULL;}
+fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = NULL;
+                                              }
      ;
-// NAO ACEITA argumentos vazio()
-args_list: args_list ';' expr 
-     | expr
+// agora aceita argumentos vazio()
+args_list: args_list ';' expr                {$$ = $3;}
+     | expr                                  {$$ = $1;}
      ;
 // Retorno
 return: TK_PR_RETURN expr
