@@ -81,6 +81,8 @@ extern void* arvore;
 %type<nodo> literal
 %type<nodo> fcall
 %type<nodo> args_list
+%type<nodo> cflow
+%type<nodo> else_command
 
 
 %%
@@ -143,7 +145,7 @@ simple_command: command_block      {$$ = $1;}
      | atr                         {$$ = $1;}
      | fcall                       {$$ = $1;}
      | return                      {$$ = NULL;}
-     | cflow                       {$$ = NULL;}
+     | cflow                       {$$ = $1;}
      ;
 // Chamada de Atribuição
 atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
@@ -153,21 +155,31 @@ atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
      ;
 // Chamada de Função
 fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = NULL;
-                                              }
+          // ESSE eh o dificil, preciso usar createValorLexico onde o valor eh "call "+TK_IDENTIFIER
+          //mas o TK_IDENTIFIER jah eh um VALOR_LEXICO, entao tenho q acessar o .valor e o .num_linha dele
+          // tentei com $1.valor mas deu seg. fault 
+                                             }
      ;
 // agora aceita argumentos vazio()
 args_list: args_list ';' expr                {$$ = $3;}
      | expr                                  {$$ = $1;}
      ;
 // Retorno
-return: TK_PR_RETURN expr
+return: TK_PR_RETURN expr                    //nao entendi o q eh pra por, na E3 diz "usar o lexema correspondente como label"
      ;
 // Controle de Fluxo
-cflow: TK_PR_IF '(' expr ')' command_block else_command
-     | TK_PR_WHILE '(' expr ')' command_block
+cflow: TK_PR_IF '(' expr ')' command_block else_command     {$$ = createNodo($1);
+                                                             addFilho($$,$3);
+                                                             addFilho($$,$5);
+                                                             addFilho($$,$6);
+                                                            }
+     | TK_PR_WHILE '(' expr ')' command_block               {$$ = createNodo($1);
+                                                             addFilho($$,$3);
+                                                             addFilho($$,$5);
+                                                            }
      ;
-else_command: TK_PR_ELSE command_block 
-     | 
+else_command: TK_PR_ELSE command_block                      {$$ = $2;}
+     |                                                      {$$ = NULL;}
      ;
 
 //Expressao
