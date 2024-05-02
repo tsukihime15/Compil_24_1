@@ -15,10 +15,13 @@ NODO* createNodo(VALOR_LEXICO valor_lexico)
 NODO* createFcallNodo(VALOR_LEXICO valor_lexico)
 {
  
-    char* novo_valor = strcat("call ", valor_lexico.valor);
-    VALOR_LEXICO novo_valor_lexico = createValorLexico(novo_valor, valor_lexico.tipo, valor_lexico.num_linha);
- 
-    NODO* nodo = createNodo(novo_valor_lexico);
+    NODO* nodo = createNodo(valor_lexico);
+    char* novo_valor = malloc(strlen("call ") + strlen(nodo->valor_lexico.valor) + 1);
+    char* call_string = "call ";
+    strcpy(novo_valor, call_string);
+    strcat(novo_valor, nodo->valor_lexico.valor);
+    nodo->valor_lexico.valor = novo_valor;
+    
     return nodo;
 }
 
