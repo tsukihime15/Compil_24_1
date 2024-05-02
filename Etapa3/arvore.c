@@ -12,6 +12,16 @@ NODO* createNodo(VALOR_LEXICO valor_lexico)
     return nodo;
 }
 
+NODO* createFcallNodo(VALOR_LEXICO valor_lexico)
+{
+ 
+    char* novo_valor = strcat("call ", valor_lexico.valor);
+    VALOR_LEXICO novo_valor_lexico = createValorLexico(novo_valor, valor_lexico.tipo, valor_lexico.num_linha);
+ 
+    NODO* nodo = createNodo(novo_valor_lexico);
+    return nodo;
+}
+
 void addFilho(NODO* pai, NODO* filho)
 {
     if (!filho) return;

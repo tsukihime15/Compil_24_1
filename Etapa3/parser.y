@@ -66,6 +66,7 @@ extern void* arvore;
 %type<nodo> command_block
 %type<nodo> command_list
 %type<nodo> simple_command
+%type<nodo> return
 %type<nodo> atr
 %type<nodo> expr
 %type<nodo> expr8
@@ -154,7 +155,8 @@ atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
                                    }
      ;
 // Chamada de Função
-fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = NULL;
+fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = createFcallNodo($1);
+                                              addFilho($$,$3);
           // ESSE eh o dificil, preciso usar createValorLexico onde o valor eh "call "+TK_IDENTIFIER
           //mas o TK_IDENTIFIER jah eh um VALOR_LEXICO, entao tenho q acessar o .valor e o .num_linha dele
           // tentei com $1.valor mas deu seg. fault 
@@ -165,8 +167,11 @@ args_list: args_list ';' expr                {$$ = $3;}
      | expr                                  {$$ = $1;}
      ;
 // Retorno
-return: TK_PR_RETURN expr                    //nao entendi o q eh pra por, na E3 diz "usar o lexema correspondente como label"
+return: TK_PR_RETURN expr       {$$ = createNodo($1);
+                                 addFilho($$,$2);
+                                }              
      ;
+//nao entendi o q eh pra por, na E3 diz "usar o lexema correspondente como label"
 // Controle de Fluxo
 cflow: TK_PR_IF '(' expr ')' command_block else_command     {$$ = createNodo($1);
                                                              addFilho($$,$3);

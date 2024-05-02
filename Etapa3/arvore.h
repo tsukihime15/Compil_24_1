@@ -13,7 +13,7 @@ typedef struct NODO
 } NODO;
 
 NODO* createNodo(VALOR_LEXICO valor_lexico);
-NODO* createNodoToFunctionCall(VALOR_LEXICO valor_lexico);
+NODO* createFcallNodo(VALOR_LEXICO valor_lexico);
 void addFilho(NODO* pai, NODO* filho);
 NODO* getUltimoFilho(NODO* pai);
 void removeNodo(NODO* node);
