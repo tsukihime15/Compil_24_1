@@ -145,7 +145,7 @@ simple_command: command_block      {$$ = $1;}
      | decl                        {$$ = NULL;}
      | atr                         {$$ = $1;}
      | fcall                       {$$ = $1;}
-     | return                      {$$ = NULL;}
+     | return                      {$$ = $1;}
      | cflow                       {$$ = $1;}
      ;
 // Chamada de Atribuição
@@ -263,9 +263,7 @@ expr2: '-' expr2              {$$ = createNodo($1);
                               }
      | expr1                  {$$ = $1;}
      ;
-expr1: '(' expr ')'           {$$ = createNodo($1);
-                               addFilho($$, $2);
-                              }
+expr1: '(' expr ')'           {$$ = $2;}
      | expr0                  {$$ = $1;}
      ;
 expr0: operand                {$$ = $1;}
