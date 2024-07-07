@@ -193,66 +193,66 @@ expr: expr8                   {$$ = $1;}
      |                        {$$ = NULL;}
      ;
 expr8: expr8 TK_OC_OR expr7   {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr7                  {$$ = $1;}
      ;
 expr7: expr7 TK_OC_AND expr6  {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr6                  {$$ = $1;}
      ;
 expr6: expr6 TK_OC_EQ expr5   {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr6 TK_OC_NE expr5   {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr5                  {$$ = $1;}
      ;
 expr5: expr5 '<' expr4        {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr5 '>' expr4        {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr5 TK_OC_LE expr4   {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr5 TK_OC_GE expr4   {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr4                  {$$ = $1;}
      ;
 expr4: expr4 '+' expr3        {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr4 '-' expr3        {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr3                  {$$ = $1;}
      ;
 expr3: expr3 '*' expr2        {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr3 '/' expr2        {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr3 '%' expr2        {$$ = createNodo($2);
-                               addFilho($$, $1);
                                addFilho($$, $3);
+                               addFilho($$, $1);
                               }
      | expr2                  {$$ = $1;}
      ;
