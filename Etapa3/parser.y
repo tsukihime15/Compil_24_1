@@ -90,15 +90,15 @@ extern void* arvore;
 // Símbolo inicial
 programa: program_list                       {$$ = $1; arvore = $$;}
      ;                      
-program_list: program_list decl ','          {$$ = $1;} /* nao fazer p/ decl */
-     | program_list func                     {if($1 != NULL){
-                                                  addFilho($1,$2);
-                                                  $$ = $1;}
-                                              else
-                                                  $$ = $2;
-                                             }
-     |                                       {$$ = NULL;}
-     ;
+programa:                                    {$$ = NULL; arvore = NULL; }
+;
+
+program_list: decl program_list ','          {$$ = $2;} /* nao fazer p/ decl */
+;
+program_list: func program_list              {$$ = $1; addFilho($$,$2);}
+;
+program_list: func {$$ = $1;}
+;
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis
 decl: type id_list TK_IDENTIFICADOR          /* nao fazer p/ decl */
@@ -113,8 +113,8 @@ type: TK_PR_INT
      | TK_PR_BOOL        
      ;
 // Função => cabeçalho e corpo
-func: header body                            {addFilho($1,$2);
-                                              $$ = $1;}
+func: header body                            {$$ = $1;
+                                              addFilho($$,$2);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
 header: '(' params_list_void ')' TK_OC_OR type '/' TK_IDENTIFICADOR   {$$ = createNodo($7);}
@@ -136,8 +136,8 @@ command_block: '{' '}'                            {$$ = NULL;}
      ;
 command_block: '{' command_list '}'               {$$ = $2;}
      ;
-command_list: command_list simple_command ','     {addFilho($1,$2);
-                                                   $$ = $1;
+command_list: command_list simple_command ','     {$$ = $1;
+                                                   addFilho($$,$2);
                                                   }
      | simple_command ','                         {$$ = $1;}
      ;
@@ -163,7 +163,8 @@ fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = createFcallNodo($1);
                                              }
      ;
 // agora aceita argumentos vazio()
-args_list: args_list ';' expr                {$$ = $3;}
+args_list: args_list ';' expr                {$$ = $3;
+                                             addFilho($$, $1);}
      | expr                                  {$$ = $1;}
      ;
 // Retorno
