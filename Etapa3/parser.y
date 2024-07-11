@@ -60,7 +60,12 @@ extern void* arvore;
 
 %type<nodo> programa
 %type<nodo> program_list
+%type<nodo> element
+%type<nodo> ident
 %type<nodo> func
+%type<nodo> type
+%type<nodo> decl
+%type<nodo> id_list
 %type<nodo> header
 %type<nodo> body
 %type<nodo> command_block
@@ -82,6 +87,8 @@ extern void* arvore;
 %type<nodo> literal
 %type<nodo> fcall
 %type<nodo> args_list
+%type<nodo> param
+%type<nodo> params_list
 %type<nodo> cflow
 %type<nodo> else_command
 
@@ -93,40 +100,64 @@ programa: program_list                       {$$ = $1; arvore = $$;}
 programa:                                    {$$ = NULL; arvore = NULL; }
 ;
 
-program_list: decl program_list ','          {$$ = $2;} /* nao fazer p/ decl */
+program_list: element program_list { if($1 == NULL) 
+                                    {$$ = $2;}
+                                     else
+                                        { 
+                                        if($2 == NULL) {$$ = $1;}                   
+                                            else { 
+                                                {$$ = $1; addFilho($$,$2);}
+                                                 }
+                                        
+                                        }
+}
+                | element {$$=$1;}
 ;
-program_list: func program_list              {$$ = $1; addFilho($$,$2);}
+element: decl  {$$ = $1;}
+         | func {$$ = $1;}
 ;
-program_list: func {$$ = $1;}
+ident: TK_IDENTIFICADOR {$$ = createNodo($1);}
 ;
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis
-decl: type id_list TK_IDENTIFICADOR          /* nao fazer p/ decl */
+decl: type id_list  ',' {$$ = NULL;}  
      ;
 // Lista de identificadores
-id_list: id_list TK_IDENTIFICADOR ';'        /* nao fazer p/ decl */
-     |                                       
+id_list: id_list ';' ident {$$ = $1;}
+     | ident {$$ = $1;}                                 
      ;
 // Tipos
-type: TK_PR_INT          
-     | TK_PR_FLOAT       
-     | TK_PR_BOOL        
+type: TK_PR_INT    {$$ = createNodo($1);}         
+     | TK_PR_FLOAT {$$ = createNodo($1);}       
+     | TK_PR_BOOL  {$$ = createNodo($1);}       
      ;
 // Função => cabeçalho e corpo
 func: header body                            {$$ = $1;
                                               addFilho($$,$2);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '(' params_list_void ')' TK_OC_OR type '/' TK_IDENTIFICADOR   {$$ = createNodo($7);}
+header: '('')' logical_op type separator TK_IDENTIFICADOR   {$$ = createNodo($6);}
      ;
+header: '(' params_list ')' logical_op type separator TK_IDENTIFICADOR   {$$ = createNodo($7);}
+     ;
+logical_op: TK_OC_OR | TK_OC_GE | TK_OC_LE | TK_OC_EQ | TK_OC_NE | TK_OC_AND;
+
+separator: '/' | '!';
 // Params: Tipo e lista de parâmetros
-params_list_void: params_list 
-     | 
+
+params_list: params_list ';' param  { if($1 == NULL){
+                                        $$ = $3;}
+                                     else{
+                                        if($3 == NULL){
+                                            $$ = $1;}
+                                        else {
+                                            $$ = $1;
+                                             }
+                                        } 
+                                     }
+     | param {$$ = $1;}
      ;
-params_list: params_list ';' param 
-     | param
-     ;
-param: type TK_IDENTIFICADOR
+param: type ident {$$ = $1; addFilho($$,$2);}
      ;
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block                               {$$ = $1;}
