@@ -61,7 +61,9 @@ extern void* arvore;
 %type<nodo> programa
 %type<nodo> program_list
 %type<nodo> element
-%type<nodo> ident
+%type<nodo> ident_func
+%type<nodo> ident_decl
+%type<nodo> ident_param
 %type<nodo> func
 %type<nodo> type
 %type<nodo> decl
@@ -119,23 +121,23 @@ program_list: element program_list { if($1 == NULL)
 }
                 | element {$$=$1;}
 ;
-element: decl  {$$ = $1;}
+element: decl  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
          | func {$$ = $1;}
 ;
-ident: TK_IDENTIFICADOR {$$ = createNodo($1);}
+ident_decl: TK_IDENTIFICADOR {$$ = createNodo($1);}
 ;
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis
-decl: type id_list  {$$ = NULL;}  
+decl: type id_list  {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
      ;
 // Lista de identificadores
-id_list: id_list ';' ident {$$ = $1; addFilho($$,$3); }
-     | ident {$$ = $1;}                                 
+id_list: id_list ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
+     | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
      ;
 // Tipos
-type: TK_PR_INT    {$$ = createNodo($1);}         
-     | TK_PR_FLOAT {$$ = createNodo($1);}       
-     | TK_PR_BOOL  {$$ = createNodo($1);}       
+type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos        
+     | TK_PR_FLOAT {$$ = NULL;} //tipos nao criam nodos nem sao filhos         
+     | TK_PR_BOOL  {$$ = NULL;} //tipos nao criam nodos nem sao filhos         
      ;
 // Função => cabeçalho e corpo
 func: header body                            {$$ = $1;
@@ -146,19 +148,19 @@ func: header body                            {$$ = $1;
      ;
 header: '('')' logical_op type '/' TK_IDENTIFICADOR   {$$ = createNodo($6);}
      ;*/
-header: '(' params_list_void ')' TK_OC_OR type '/' ident   {$$ = $7;}
+header: '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $7;}
 ;
+ident_func: TK_IDENTIFICADOR  {$$ = createFcallNodo($1);}
 // Params: Tipo e lista de parâmetros
-params_list_void: params_list {$$ = $1;}
-     | {$$=NULL;}
+params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
+     | {$$=NULL;}                       
      ;
-params_list: params_list ';' param {$$=$1; addFilho($$,$3);}
-    | param {$$=$1;}
+params_list: param ';' params_list {$$=NULL;}//parametros nao criam nodos nem sao filhos
+    | param {$$=NULL;}
      ;
-param: type ident {$$=$2; addFilho($$,$1);}
+param: type ident_param {$$=NULL;}//parametros nao criam nodos nem sao filhos
      ;
-//logical_op: TK_OC_OR | TK_OC_GE | TK_OC_LE | TK_OC_EQ | TK_OC_NE | TK_OC_AND;
-
+ident_param: TK_IDENTIFICADOR {$$=NULL;}//parametros nao criam nodos nem sao filhos
 // Params: Tipo e lista de parâmetros
 
 /*params_list: params_list ';' param  { if($1 == NULL){
@@ -183,9 +185,16 @@ command_block: '{' '}'                            {$$ = NULL;}
      ;
 command_block: '{' command_list '}'               {$$ = $2;}
      ;
-command_list: command_list simple_command ','     {$$ = $2;
-                                                   addFilho($$,$1);
-                                                  }
+command_list: simple_command ',' command_list    {if($1 == NULL) 
+                                    {$$ = $3;}
+                                     else
+                                        { 
+                                        if($3 == NULL) {$$ = $1;}                   
+                                            else { 
+                                                {$$ = $1; addFilho($$,$3);}
+                                                 }
+                                        
+                                        }    }
      | simple_command ','                         {$$ = $1;}
      ;
 simple_command: command_block      {$$ = $1;}
@@ -204,9 +213,7 @@ atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
 // Chamada de Função
 fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = createFcallNodo($1);
                                               addFilho($$,$3);
-          // ESSE eh o dificil, preciso usar createValorLexico onde o valor eh "call "+TK_IDENTIFIER
-          //mas o TK_IDENTIFIER jah eh um VALOR_LEXICO, entao tenho q acessar o .valor e o .num_linha dele
-          // tentei com $1.valor mas deu seg. fault 
+
                                              }
      ;
 // agora aceita argumentos vazio()
