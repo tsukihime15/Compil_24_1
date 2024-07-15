@@ -89,17 +89,23 @@ extern void* arvore;
 %type<nodo> args_list
 %type<nodo> param
 %type<nodo> params_list
+%type<nodo> params_list_void
 %type<nodo> cflow
 %type<nodo> else_command
 
 
 %%
 // Símbolo inicial
-programa: program_list                       {$$ = $1; arvore = $$;}
-     ;                      
-programa:                                    {$$ = NULL; arvore = NULL; }
+programa: program_list               {$$ = $1; arvore = $$;}
+;                      
+programa:                            {$$ = NULL; arvore = NULL; }
 ;
 
+//program_list: decl program_list  {$$=$1; addFilho($$,$2);}
+//;
+//program_list: func program_list {$$=$1; addFilho($$,$2);}
+//;
+//program_list: func {$$=$1;};
 program_list: element program_list { if($1 == NULL) 
                                     {$$ = $2;}
                                      else
@@ -120,10 +126,10 @@ ident: TK_IDENTIFICADOR {$$ = createNodo($1);}
 ;
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis
-decl: type id_list  ',' {$$ = NULL;}  
+decl: type id_list  {$$ = NULL;}  
      ;
 // Lista de identificadores
-id_list: id_list ';' ident {$$ = $1;}
+id_list: id_list ';' ident {$$ = $1; addFilho($$,$3); }
      | ident {$$ = $1;}                                 
      ;
 // Tipos
@@ -136,16 +142,26 @@ func: header body                            {$$ = $1;
                                               addFilho($$,$2);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '('')' logical_op type separator TK_IDENTIFICADOR   {$$ = createNodo($6);}
+/*header: '(' params_list ')' logical_op type separator TK_IDENTIFICADOR   {$$ = createNodo($7);}
      ;
-header: '(' params_list ')' logical_op type separator TK_IDENTIFICADOR   {$$ = createNodo($7);}
+header: '('')' logical_op type '/' TK_IDENTIFICADOR   {$$ = createNodo($6);}
+     ;*/
+header: '(' params_list_void ')' TK_OC_OR type '/' ident   {$$ = $7;}
+;
+// Params: Tipo e lista de parâmetros
+params_list_void: params_list {$$ = $1;}
+     | {$$=NULL;}
      ;
-logical_op: TK_OC_OR | TK_OC_GE | TK_OC_LE | TK_OC_EQ | TK_OC_NE | TK_OC_AND;
+params_list: params_list ';' param {$$=$1; addFilho($$,$3);}
+    | param {$$=$1;}
+     ;
+param: type ident {$$=$2; addFilho($$,$1);}
+     ;
+//logical_op: TK_OC_OR | TK_OC_GE | TK_OC_LE | TK_OC_EQ | TK_OC_NE | TK_OC_AND;
 
-separator: '/' | '!';
 // Params: Tipo e lista de parâmetros
 
-params_list: params_list ';' param  { if($1 == NULL){
+/*params_list: params_list ';' param  { if($1 == NULL){
                                         $$ = $3;}
                                      else{
                                         if($3 == NULL){
@@ -158,7 +174,7 @@ params_list: params_list ';' param  { if($1 == NULL){
      | param {$$ = $1;}
      ;
 param: type ident {$$ = $1; addFilho($$,$2);}
-     ;
+     ;*/
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block                               {$$ = $1;}
      ;
@@ -167,13 +183,13 @@ command_block: '{' '}'                            {$$ = NULL;}
      ;
 command_block: '{' command_list '}'               {$$ = $2;}
      ;
-command_list: command_list simple_command ','     {$$ = $1;
-                                                   addFilho($$,$2);
+command_list: command_list simple_command ','     {$$ = $2;
+                                                   addFilho($$,$1);
                                                   }
      | simple_command ','                         {$$ = $1;}
      ;
 simple_command: command_block      {$$ = $1;}
-     | decl                        {$$ = NULL;}
+     | decl                        {$$ = $1;}
      | atr                         {$$ = $1;}
      | fcall                       {$$ = $1;}
      | return                      {$$ = $1;}
