@@ -143,7 +143,7 @@ func: header body                            {$$ = $1;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
 header: '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $7;}
 ;
-ident_func: TK_IDENTIFICADOR  {$$ = createFcallNodo($1);}
+ident_func: TK_IDENTIFICADOR  {$$ = createNodo($1);}
 
 // Params: Tipo e lista de parâmetros
 params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
@@ -160,11 +160,11 @@ ident_param: TK_IDENTIFICADOR {$$=NULL;}//parametros nao criam nodos nem sao fil
 body: command_block                               {$$ = $1;}
      ;
 // Aceita bloco com comando vazio 
-command_block: '{' '}'                            {$$ = NULL;}
+command_block: '{''}'                         {$$ = NULL;}
      ;
-command_block: '{' command_list '}'               {$$ = $2;}
+command_block: '{' command_list '}'           {$$ = $2;}
      ;
-command_list: simple_command command_list    {if($1 == NULL) 
+command_list: simple_command command_list {if($1 == NULL) 
                                     {$$ = $2;}
                                      else
                                         { 
@@ -176,7 +176,7 @@ command_list: simple_command command_list    {if($1 == NULL)
                                         }    }
      | simple_command                          {$$ = $1;}
      ;
-simple_command: command_block      {$$ = $1;}
+simple_command: command_block ','  {$$ = $1;}
      | decl                        {$$ = $1;}
      | atr                         {$$ = $1;}
      | fcall                       {$$ = $1;}
@@ -190,14 +190,14 @@ atr: TK_IDENTIFICADOR '=' expr  ','   {$$ = createNodo($2);
                                    }
      ;
 // Chamada de Função
-fcall: TK_IDENTIFICADOR '(' args_list ')'  ','  {$$ = createFcallNodo($1);
+fcall: TK_IDENTIFICADOR '(' args_list ')'   {$$ = createFcallNodo($1);
                                               addFilho($$,$3);
 
                                              }
      ;
 // agora aceita argumentos vazio()
-args_list: args_list ';' expr                {$$ = $3;
-                                             addFilho($$, $1);}
+args_list: expr  ';' args_list               {$$ = $1;
+                                             addFilho($$, $3);}
      | expr                                  {$$ = $1;}
      ;
 // Retorno
@@ -226,66 +226,66 @@ expr: expr8                   {$$ = $1;}
      |                        {$$ = NULL;}
      ;
 expr8: expr8 TK_OC_OR expr7   {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr7                  {$$ = $1;}
      ;
 expr7: expr7 TK_OC_AND expr6  {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr6                  {$$ = $1;}
      ;
 expr6: expr6 TK_OC_EQ expr5   {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr6 TK_OC_NE expr5   {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr5                  {$$ = $1;}
      ;
 expr5: expr5 '<' expr4        {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr5 '>' expr4        {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr5 TK_OC_LE expr4   {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr5 TK_OC_GE expr4   {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr4                  {$$ = $1;}
      ;
-expr4: expr4 '+' expr3        {$$ = createNodo($2);
-                               addFilho($$, $3);
+expr4: expr4 '+' expr3        {$$ = createNodo($2);                           
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr4 '-' expr3        {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr3                  {$$ = $1;}
      ;
 expr3: expr3 '*' expr2        {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);                            
                               }
      | expr3 '/' expr2        {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr3 '%' expr2        {$$ = createNodo($2);
-                               addFilho($$, $3);
                                addFilho($$, $1);
+                               addFilho($$, $3);
                               }
      | expr2                  {$$ = $1;}
      ;

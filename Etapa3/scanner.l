@@ -1,5 +1,5 @@
 %{
-/* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe */
+/* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe - 00219819 */
 #include <stdio.h>
 #include "arvore.h"
 #include "valor_lexico.h"
