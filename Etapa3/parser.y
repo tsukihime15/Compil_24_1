@@ -66,7 +66,8 @@ extern void* arvore;
 %type<nodo> ident_param
 %type<nodo> func
 %type<nodo> type
-%type<nodo> decl
+%type<nodo> decl_global
+%type<nodo> decl_local
 %type<nodo> id_list
 %type<nodo> header
 %type<nodo> body
@@ -117,15 +118,18 @@ program_list: element program_list { if($1 == NULL)
                 | element {$$=$1;} 
 
 ;
-element: decl  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
+element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
 
         | func {$$ = $1;}
 ;
 ident_decl: TK_IDENTIFICADOR {$$ = createNodo($1);}
 ;
 // Variáveis globais => Tipo e Lista de identificadores
-// Declaração de variáveis
-decl: type id_list ','             {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
+// Declaração de variáveis globais
+decl_global: type id_list ','             {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
+;
+//Declaração de variáveis locais
+decl_local: type id_list                 {$$ = NULL;} 
 ;
 // Lista de identificadores
 id_list: id_list ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
@@ -164,27 +168,27 @@ command_block: '{''}'                         {$$ = NULL;}
      ;
 command_block: '{' command_list '}'           {$$ = $2;}
      ;
-command_list: simple_command command_list {if($1 == NULL) 
-                                    {$$ = $2;}
+command_list: simple_command ',' command_list {if($1 == NULL) 
+                                    {$$ = $3;}
                                      else
                                         { 
-                                        if($2 == NULL) {$$ = $1;}                   
+                                        if($3 == NULL) {$$ = $1;}                   
                                             else { 
-                                                {$$ = $1; addFilho($$,$2);}
+                                                {$$ = $1; addFilho($$,$3);}
                                                  }
                                         
                                         }    }
-     | simple_command                          {$$ = $1;}
+     | simple_command ','                         {$$ = $1;}
      ;
-simple_command: command_block ','  {$$ = $1;}
-     | decl                        {$$ = $1;}
+simple_command: command_block      {$$ = $1;}
+     | decl_local                  {$$ = $1;}
      | atr                         {$$ = $1;}
      | fcall                       {$$ = $1;}
      | return                      {$$ = $1;}
      | cflow                       {$$ = $1;}
      ;
 // Chamada de Atribuição
-atr: TK_IDENTIFICADOR '=' expr  ','   {$$ = createNodo($2);
+atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
                                     addFilho($$, createNodo($1));
                                     addFilho($$, $3);
                                    }
@@ -201,18 +205,18 @@ args_list: expr  ';' args_list               {$$ = $1;
      | expr                                  {$$ = $1;}
      ;
 // Retorno
-return: TK_PR_RETURN expr ','  {$$ = createNodo($1);
+return: TK_PR_RETURN expr   {$$ = createNodo($1);
                                  addFilho($$,$2);
                                 }              
      ;
 //nao entendi o q eh pra por, na E3 diz "usar o lexema correspondente como label"
 // Controle de Fluxo
-cflow: TK_PR_IF '(' expr ')' command_block else_command ','  {$$ = createNodo($1);
+cflow: TK_PR_IF '(' expr ')' command_block else_command   {$$ = createNodo($1);
                                                              addFilho($$,$3);
                                                              addFilho($$,$5);
                                                              addFilho($$,$6);
                                                             }
-     | TK_PR_WHILE '(' expr ')' command_block    ','         {$$ = createNodo($1);
+     | TK_PR_WHILE '(' expr ')' command_block             {$$ = createNodo($1);
                                                              addFilho($$,$3);
                                                              addFilho($$,$5);
                                                             }
