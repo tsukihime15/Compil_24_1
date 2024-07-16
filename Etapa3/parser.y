@@ -1,5 +1,5 @@
 %{
-/* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe */
+/* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe - 00219819 */
 #include <stdio.h>
 #include "arvore.h"
 #include "valor_lexico.h"
@@ -103,11 +103,6 @@ programa: program_list               {$$ = $1; arvore = $$;}
 programa:                            {$$ = NULL; arvore = NULL; }
 ;
 
-//program_list: decl program_list  {$$=$1; addFilho($$,$2);}
-//;
-//program_list: func program_list {$$=$1; addFilho($$,$2);}
-//;
-//program_list: func {$$=$1;};
 program_list: element program_list { if($1 == NULL) 
                                     {$$ = $2;}
                                      else
@@ -119,17 +114,19 @@ program_list: element program_list { if($1 == NULL)
                                         
                                         }
 }
-                | element {$$=$1;}
+                | element {$$=$1;} 
+
 ;
 element: decl  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
-         | func {$$ = $1;}
+
+        | func {$$ = $1;}
 ;
 ident_decl: TK_IDENTIFICADOR {$$ = createNodo($1);}
 ;
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis
-decl: type id_list  {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
-     ;
+decl: type id_list ','             {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
+;
 // Lista de identificadores
 id_list: id_list ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
      | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
@@ -144,13 +141,10 @@ func: header body                            {$$ = $1;
                                               addFilho($$,$2);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-/*header: '(' params_list ')' logical_op type separator TK_IDENTIFICADOR   {$$ = createNodo($7);}
-     ;
-header: '('')' logical_op type '/' TK_IDENTIFICADOR   {$$ = createNodo($6);}
-     ;*/
 header: '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $7;}
 ;
 ident_func: TK_IDENTIFICADOR  {$$ = createFcallNodo($1);}
+
 // Params: Tipo e lista de parâmetros
 params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
      | {$$=NULL;}                       
@@ -161,22 +155,7 @@ params_list: param ';' params_list {$$=NULL;}//parametros nao criam nodos nem sa
 param: type ident_param {$$=NULL;}//parametros nao criam nodos nem sao filhos
      ;
 ident_param: TK_IDENTIFICADOR {$$=NULL;}//parametros nao criam nodos nem sao filhos
-// Params: Tipo e lista de parâmetros
 
-/*params_list: params_list ';' param  { if($1 == NULL){
-                                        $$ = $3;}
-                                     else{
-                                        if($3 == NULL){
-                                            $$ = $1;}
-                                        else {
-                                            $$ = $1;
-                                             }
-                                        } 
-                                     }
-     | param {$$ = $1;}
-     ;
-param: type ident {$$ = $1; addFilho($$,$2);}
-     ;*/
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block                               {$$ = $1;}
      ;
@@ -185,17 +164,17 @@ command_block: '{' '}'                            {$$ = NULL;}
      ;
 command_block: '{' command_list '}'               {$$ = $2;}
      ;
-command_list: simple_command ',' command_list    {if($1 == NULL) 
-                                    {$$ = $3;}
+command_list: simple_command command_list    {if($1 == NULL) 
+                                    {$$ = $2;}
                                      else
                                         { 
-                                        if($3 == NULL) {$$ = $1;}                   
+                                        if($2 == NULL) {$$ = $1;}                   
                                             else { 
-                                                {$$ = $1; addFilho($$,$3);}
+                                                {$$ = $1; addFilho($$,$2);}
                                                  }
                                         
                                         }    }
-     | simple_command ','                         {$$ = $1;}
+     | simple_command                          {$$ = $1;}
      ;
 simple_command: command_block      {$$ = $1;}
      | decl                        {$$ = $1;}
@@ -205,13 +184,13 @@ simple_command: command_block      {$$ = $1;}
      | cflow                       {$$ = $1;}
      ;
 // Chamada de Atribuição
-atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
+atr: TK_IDENTIFICADOR '=' expr  ','   {$$ = createNodo($2);
                                     addFilho($$, createNodo($1));
                                     addFilho($$, $3);
                                    }
      ;
 // Chamada de Função
-fcall: TK_IDENTIFICADOR '(' args_list ')'    {$$ = createFcallNodo($1);
+fcall: TK_IDENTIFICADOR '(' args_list ')'  ','  {$$ = createFcallNodo($1);
                                               addFilho($$,$3);
 
                                              }
@@ -222,18 +201,18 @@ args_list: args_list ';' expr                {$$ = $3;
      | expr                                  {$$ = $1;}
      ;
 // Retorno
-return: TK_PR_RETURN expr       {$$ = createNodo($1);
+return: TK_PR_RETURN expr ','  {$$ = createNodo($1);
                                  addFilho($$,$2);
                                 }              
      ;
 //nao entendi o q eh pra por, na E3 diz "usar o lexema correspondente como label"
 // Controle de Fluxo
-cflow: TK_PR_IF '(' expr ')' command_block else_command     {$$ = createNodo($1);
+cflow: TK_PR_IF '(' expr ')' command_block else_command ','  {$$ = createNodo($1);
                                                              addFilho($$,$3);
                                                              addFilho($$,$5);
                                                              addFilho($$,$6);
                                                             }
-     | TK_PR_WHILE '(' expr ')' command_block               {$$ = createNodo($1);
+     | TK_PR_WHILE '(' expr ')' command_block    ','         {$$ = createNodo($1);
                                                              addFilho($$,$3);
                                                              addFilho($$,$5);
                                                             }
