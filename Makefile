@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS =-I.
 
-DEPS = parser.tab.h valor_lexico.h arvore.h tabela_simbolo.h
+DEPS = parser.tab.h valor_lexico.h arvore.h pilha_tabelas.h tabela_simbolo.h
 OBJ = main.o lex.yy.o parser.tab.o arvore.o valor_lexico.o tabela_simbolo.o pilha_tabelas.o 
 
 etapa4: $(OBJ)

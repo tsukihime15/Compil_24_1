@@ -1,26 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "tabela_simbolo.h"
-#include "valor_lexico.h"
-// Códigos de erro
-#define ERR_UNDECLARED 10
-#define ERR_DECLARED 11 
-#define ERR_VARIABLE 20 
-#define ERR_FUNCTION 21
-
-
-// Estrutura da pilha de tabelas de símbolos
-typedef struct PilhaTabelaSimbolos {
-    TabelaSimbolos* tabela;
-    struct PilhaTabelaSimbolos* proximo;
-} PilhaTabelaSimbolos;
-
-typedef struct AST {
-    char* tipo;
-    struct AST* filhoEsquerdo;
-    struct AST* filhoDireito;
-} AST;
+#include "pilha_tabelas.h"
 
 // Funções para manipular a pilha de tabelas de símbolos
 PilhaTabelaSimbolos* criarPilha() {
@@ -30,14 +8,37 @@ PilhaTabelaSimbolos* criarPilha() {
     return pilha;
 }
 
-EntradaTabelaSimbolos criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){  
+EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){
+    /*if(valor_lexico == NULL){
+        printf("valor_lexico vazio");
+        exit(1);
+    }*/  
     EntradaTabelaSimbolos* entrada = (EntradaTabelaSimbolos*)malloc(sizeof(EntradaTabelaSimbolos));
     entrada->linha = valor_lexico.num_linha;
-    entrada->natureza = valor_lexico.natu;  // IDENTIFICADOR == ID/ FUNCAO == FUNC
-    //entrada->tipo = valor_lexico.tipo;      // if (valor.lexico.tipo == INTEIRO) strccpy(entrada->tipo, "int" ); 
+    //entrada->natureza = valor_lexico.natu;
+    if (valor_lexico.natu == ID){
+        entrada->natureza = IDENTIFICADOR;
+    }
+    else if (valor_lexico.natu == FUNC){
+        entrada->natureza = FUNCAO;
+    }
+    //entrada->tipo = valor_lexico.tipo;      
+    if (valor_lexico.tipo == INTEIRO){   
+        strcpy(entrada->tipo, "int" );
+        entrada->valor.int_val = atoi(valor_lexico.valor);
+    }
+    else if (valor_lexico.tipo == BOOLEANO){   
+        strcpy(entrada->tipo, "bool" );
+        strcpy(entrada->valor.string_val, valor_lexico.valor);
+    }
+    else if (valor_lexico.tipo == FLOAT){   
+        strcpy(entrada->tipo, "float" );
+        entrada->valor.float_val = atof(valor_lexico.valor);
+    }
+
     //strcpy(entrada->valor, valor_lexico.valor);
 
-    return *entrada;
+    return entrada;
 }
 
 void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela) {
