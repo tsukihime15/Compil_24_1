@@ -9,15 +9,15 @@ int yyparse(void);
 extern void yyerror (char const *mensagem);
 
 extern void* arvore;
-extern PilhaTabelaSimbolos *pilha_de_tabelas;
-extern TabelaSimbolos *tabela_global = NULL;
-extern TabelaSimbolos *tabela_escopo = NULL;
+extern void *pilha_de_tabelas;
+extern void *tabela_global;
+extern void *tabela_escopo;
 %}
 
 // %code requires
 // {
 //     #include "arvore.h"
-//      #include "pilha_tabelas.h"
+//     #include "pilha_tabelas.h"
 // }
 
 %union
@@ -106,7 +106,7 @@ programa: criaTabelaEscopoGlobal program_list               {$$ = $2; arvore = $
 ;                      
 programa:   /* Vazio */       {$$ = NULL; arvore = NULL; }
 ;
-criaTabelaEscopoGlobal: /* Vazio */ {pilha_de_tabelas = criarPilha();}
+criaTabelaEscopoGlobal: /* Vazio */ {criaTabelaGlobal(pilha_de_tabelas);}
 ;
 program_list: element program_list { if($1 == NULL) 
                                     {$$ = $2;}
@@ -175,7 +175,8 @@ command_block: '{' command_list '}'           {$$ = $2;}
 
 command_list:	empilha_tabela_escopo command_block ';' { $$ = $2; };     
 
-empilha_tabela_escopo: /* Vazio */ { empilhar(&pilha_de_tabelas, tabela_escopo); } //derclarar Tabela escopo
+empilha_tabela_escopo: /* Vazio */ { empilhar(pilha_de_tabelas, tabela_escopo);}//derclarar Tabela escopo
+     ; 
 
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}

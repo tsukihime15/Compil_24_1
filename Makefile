@@ -7,9 +7,9 @@ OBJ = main.o lex.yy.o parser3.tab.o arvore.o valor_lexico.o tabela_simbolo.o pil
 etapa4: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-main.o lex.yy.o parser3.tab.o arvore.o valor_lexico.o: $(DEPS)
+main.o lex.yy.o parser3.tab.o arvore.o valor_lexico.o tabela_simbolo.o pilha_tabelas.o: $(DEPS)
 
-parser.tab.c parser3.tab.h: parser3.y
+parser3.tab.c parser3.tab.h: parser3.y
 	bison -d parser3.y
 
 lex.yy.c: scanner.l
