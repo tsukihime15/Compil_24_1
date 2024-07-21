@@ -17,6 +17,12 @@ extern void* arvore;
 //      #include "valor_lexico.h"
 // }
 
+//extern Lista_tabelas *lista_tabelas;
+//extern Tabela *tabela_global;
+//extern Tabela *tabela_escopo;
+//extern int tipo_atual;
+//atualizar declarações
+
 %union
 {
     VALOR_LEXICO valor_lexico;
@@ -99,6 +105,10 @@ extern void* arvore;
 
 %%
 // Símbolo inicial
+raiz: empilha_tabela_escopo
+      programa
+      desempilha_tabela_escopo
+;
 programa: program_list               {$$ = $1; arvore = $$;}
 ;                      
 programa:                            {$$ = NULL; arvore = NULL; }
@@ -141,14 +151,15 @@ type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos
      | TK_PR_BOOL  {$$ = NULL;} //tipos nao criam nodos nem sao filhos         
      ;
 // Função => cabeçalho e corpo
-func: header body                            {$$ = $1;
-                                              addFilho($$,$2);}
+// OBS: >>CABEÇALHOS<< FICAM NO ESCOPO GLOBAL
+func: empilha_tabela_escopo header body desempilha_tabela_escopo {$$ = $1;
+                                                                 addFilho($$,$2);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
 header: '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $7;}
 ;
 ident_func: TK_IDENTIFICADOR  {$$ = createNodo($1);}
-
+;
 // Params: Tipo e lista de parâmetros
 params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
      | {$$=NULL;}                       
@@ -159,7 +170,7 @@ params_list: param ';' params_list {$$=NULL;}//parametros nao criam nodos nem sa
 param: type ident_param {$$=NULL;}//parametros nao criam nodos nem sao filhos
      ;
 ident_param: TK_IDENTIFICADOR {$$=NULL;}//parametros nao criam nodos nem sao filhos
-
+;
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block                               {$$ = $1;}
      ;
@@ -167,7 +178,13 @@ body: command_block                               {$$ = $1;}
 command_block: '{''}'                         {$$ = NULL;}
      ;
 command_block: '{' command_list '}'           {$$ = $2;}
-     ;
+;
+//command_list:	empilha_tabela_escopo command_block ';' { $$ = $2; };  
+//;
+empilha_tabela_escopo: /* Vazio */ { empilhar(&lista_tabelas, tabela_escopo); } //declarar Tabela escopo
+;
+desempilha_tabela_escopo: {desempilhar(&lista_tabelas);}
+;
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}
                                      else
@@ -199,7 +216,7 @@ fcall: TK_IDENTIFICADOR '(' args_list ')'   {$$ = createFcallNodo($1);
 
                                              }
      ;
-// agora aceita argumentos vazio()
+
 args_list: expr  ';' args_list               {$$ = $1;
                                              addFilho($$, $3);}
      | expr                                  {$$ = $1;}
@@ -209,7 +226,7 @@ return: TK_PR_RETURN expr   {$$ = createNodo($1);
                                  addFilho($$,$2);
                                 }              
      ;
-//nao entendi o q eh pra por, na E3 diz "usar o lexema correspondente como label"
+
 // Controle de Fluxo
 cflow: TK_PR_IF '(' expr ')' command_block else_command   {$$ = createNodo($1);
                                                              addFilho($$,$3);
