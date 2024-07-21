@@ -15,7 +15,7 @@ EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){
     }*/  
     EntradaTabelaSimbolos* entrada = (EntradaTabelaSimbolos*)malloc(sizeof(EntradaTabelaSimbolos));
     entrada->linha = valor_lexico.num_linha;
-    //entrada->natureza = valor_lexico.natu;
+    
     if (valor_lexico.natu == ID){
         entrada->natureza = IDENTIFICADOR;
     }
@@ -35,8 +35,6 @@ EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){
         strcpy(entrada->tipo, "float" );
         entrada->valor.float_val = atof(valor_lexico.valor);
     }
-
-    //strcpy(entrada->valor, valor_lexico.valor);
 
     return entrada;
 }
@@ -62,7 +60,7 @@ TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha) {
     return pilha->tabela;
 }
 
-void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema, int linha) {
+void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema) {
     PilhaTabelaSimbolos* atual = pilha;
     while (atual != NULL) {
         Simbolo* simbolo = buscarSimbolo(atual->tabela, lexema);
@@ -71,6 +69,7 @@ void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema, int lin
         }
         atual = atual->proximo;
     }
+    int linha = atual->entrada.linha;
     printf("Erro semântico na linha %d: Identificador '%s' não declarado (ERR_UNDECLARED).\n", linha, lexema);
     exit(ERR_UNDECLARED);
 }
@@ -132,4 +131,9 @@ char* inferirTipo(AST* no, PilhaTabelaSimbolos* pilha) {
     return no->tipo;  // Retorna o tipo se for um nó folha
 }
 
+void limparPilha() {
+    while (pilha_tabelas != NULL) {
+        desempilhar(&pilha_tabelas);
+    }
+}
 

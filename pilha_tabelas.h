@@ -34,5 +34,5 @@ void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema, int lin
 void declararIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, EntradaTabelaSimbolos entrada, int linha);
 void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, int linha, Natureza naturezaEsperada);
 char* inferirTipo(AST* no, PilhaTabelaSimbolos* pilha);
-
+void limparPilha();
 #endif
