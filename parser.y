@@ -9,19 +9,16 @@ int yyparse(void);
 extern void yyerror (char const *mensagem);
 
 extern void* arvore;
+extern void *pilha_de_tabelas;
+extern void *tabela_global;
+extern void *tabela_escopo;
 %}
 
 // %code requires
 // {
 //     #include "arvore.h"
-//      #include "valor_lexico.h"
+//      #include "pilha_tabelas.h"
 // }
-
-//extern Lista_tabelas *lista_tabelas;
-//extern Tabela *tabela_global;
-//extern Tabela *tabela_escopo;
-//extern int tipo_atual;
-//atualizar declarações
 
 %union
 {
@@ -152,8 +149,8 @@ type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos
      ;
 // Função => cabeçalho e corpo
 // OBS: >>CABEÇALHOS<< FICAM NO ESCOPO GLOBAL
-func: empilha_tabela_escopo header body desempilha_tabela_escopo {$$ = $1;
-                                                                 addFilho($$,$2);}
+func: empilha_tabela_escopo header body desempilha_tabela_escopo {$$ = $2;
+                                                                 addFilho($$,$3);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
 header: '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $7;}
@@ -181,9 +178,9 @@ command_block: '{' command_list '}'           {$$ = $2;}
 ;
 //command_list:	empilha_tabela_escopo command_block ';' { $$ = $2; };  
 //;
-empilha_tabela_escopo: /* Vazio */ { empilhar(&lista_tabelas, tabela_escopo); } //declarar Tabela escopo
+empilha_tabela_escopo: /* Vazio */ { empilhar(pilha_de_tabelas, tabela_escopo);} //declarar Tabela escopo
 ;
-desempilha_tabela_escopo: {desempilhar(&lista_tabelas);}
+desempilha_tabela_escopo: {desempilhar(pilha_de_tabelas);}
 ;
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}
