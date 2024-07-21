@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "arvore.h"
 #include "valor_lexico.h"
-#include "parser.tab.h"
+#include "parser3.tab.h"
 
 
 %}

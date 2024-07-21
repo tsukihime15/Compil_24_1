@@ -2,26 +2,24 @@
 /* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe - 00219819 */
 #include <stdio.h>
 #include "arvore.h"
-#include "valor_lexico.h"
+#include "pilha_tabelas.h"
 
 int yylex(void);
 int yyparse(void);
 extern void yyerror (char const *mensagem);
 
 extern void* arvore;
+extern PilhaTabelaSimbolos *pilha_de_tabelas;
+extern TabelaSimbolos *tabela_global = NULL;
+extern TabelaSimbolos *tabela_escopo = NULL;
 %}
 
 // %code requires
 // {
 //     #include "arvore.h"
-//      #include "valor_lexico.h"
+//      #include "pilha_tabelas.h"
 // }
 
-//extern Lista_tabelas *lista_tabelas;
-//extern Tabela *tabela_global;
-//extern Tabela *tabela_escopo;
-//extern int tipo_atual;
-//atualizar declarações
 %union
 {
     VALOR_LEXICO valor_lexico;
@@ -104,11 +102,12 @@ extern void* arvore;
 
 %%
 // Símbolo inicial
-programa: program_list               {$$ = $1; arvore = $$;}
+programa: criaTabelaEscopoGlobal program_list               {$$ = $2; arvore = $$;}
 ;                      
-programa:                            {$$ = NULL; arvore = NULL; }
+programa:   /* Vazio */       {$$ = NULL; arvore = NULL; }
 ;
-
+criaTabelaEscopoGlobal: /* Vazio */ {pilha_de_tabelas = criarPilha();}
+;
 program_list: element program_list { if($1 == NULL) 
                                     {$$ = $2;}
                                      else
@@ -176,7 +175,7 @@ command_block: '{' command_list '}'           {$$ = $2;}
 
 command_list:	empilha_tabela_escopo command_block ';' { $$ = $2; };     
 
-empilha_tabela_escopo: /* Vazio */ { empilhar(&lista_tabelas, tabela_escopo); } //derclarar Tabela escopo
+empilha_tabela_escopo: /* Vazio */ { empilhar(&pilha_de_tabelas, tabela_escopo); } //derclarar Tabela escopo
 
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}
