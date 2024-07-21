@@ -3,6 +3,15 @@
 #include <string.h>
 #include "tabela_simbolo.h"
 
+//Funcao para inicializar uma tabela de simbolos a partir da main
+void criaTabelaMain(TabelaSimbolos* entrada)
+{
+    if (!entrada) return;
+
+    entrada = criarTabelaSimbolos();
+}
+
+
 // Função para criar uma nova tabela de símbolos
 TabelaSimbolos* criarTabelaSimbolos() {
     TabelaSimbolos* tabela = (TabelaSimbolos*)malloc(sizeof(TabelaSimbolos));

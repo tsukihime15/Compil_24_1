@@ -25,6 +25,8 @@ typedef struct AST {
     struct AST* filhoDireito;
 } AST;
 
+void criaTabelaGlobal(PilhaTabelaSimbolos* entrada);
+
 PilhaTabelaSimbolos* criarPilha();
 EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico);
 void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela);

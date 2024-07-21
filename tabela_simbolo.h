@@ -31,6 +31,7 @@ typedef struct {
     Simbolo* primeiro;
 } TabelaSimbolos;
 
+void criaTabelaMain(TabelaSimbolos* entrada);
 
 TabelaSimbolos* criarTabelaSimbolos();
 Simbolo* criarSimbolo(const char* lexema, EntradaTabelaSimbolos entrada);

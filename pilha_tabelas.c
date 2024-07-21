@@ -8,6 +8,13 @@ PilhaTabelaSimbolos* criarPilha() {
     return pilha;
 }
 
+void criaTabelaGlobal(PilhaTabelaSimbolos* entrada)
+{
+    if (!entrada) return;
+
+    entrada = criarPilha();
+}
+
 EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){
     /*if(valor_lexico == NULL){
         printf("valor_lexico vazio");

@@ -10,20 +10,15 @@ int yyparse(void);
 extern void yyerror (char const *mensagem);
 
 extern void* arvore;
-extern PilhaTabelaSimbolos* *lista_tabelas;
-
-void empilha_tabela_escopo();
-void desempilha_tabela_escopo();
-//extern Tabela *tabela_global;
-//extern Tabela *tabela_escopo;
-//extern int tipo_atual;
-//atualizar declarações
+extern void *pilha_de_tabelas;
+extern void *tabela_global;
+extern void *tabela_escopo;
 %}
 
 // %code requires
 // {
 //     #include "arvore.h"
-//      #include "valor_lexico.h"
+//      #include "pilha_tabelas.h"
 // }
 
 %union
@@ -137,7 +132,7 @@ element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
 ;
 ident_decl: TK_IDENTIFICADOR {$$ = createNodo($1); verificarDeclaracao($1);
 EntradaTabelaSimbolos* entrada = criaEntradaTabelaSimbolos($1);
-declararIdentificador(lista_tabelas, $1.valor_lexico.valor, *entrada, $1.valor_lexico.num_linha);
+declararIdentificador(pilha_de_tabelas, $1.valor_lexico.valor, *entrada, $1.valor_lexico.num_linha);
 };
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
@@ -165,7 +160,7 @@ header: '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $7;}
 ;
 ident_func: TK_IDENTIFICADOR  {$$ = createNodo($1); verificarDeclaracao($1);
 EntradaTabelaSimbolos* entrada = criaEntradaTabelaSimbolos($1);
-declararIdentificador(lista_tabelas, $1.valor_lexico.valor, *entrada, $1.valor_lexico.num_linha);
+declararIdentificador(pilha_de_tabelas, $1.valor_lexico.valor, *entrada, $1.valor_lexico.num_linha);
 };
 // Params: Tipo e lista de parâmetros
 params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
@@ -186,6 +181,9 @@ command_block: '{''}'                         {$$ = NULL;}
      ;
 command_block: '{' command_list '}'           {$$ = $2;}
 ;
+empilha_tabela_escopo: /* Vazio */ { empilhar(pilha_de_tabelas, tabela_escopo);}; //declarar Tabela escopo
+desempilha_tabela_escopo: {desempilhar(pilha_de_tabelas);};
+
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}
                                      else
@@ -207,14 +205,14 @@ simple_command: command_block      {$$ = $1;}
      ;
 // Chamada de Atribuição
 atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
-                                    verificarUsoIdentificador(lista_tabelas, $1.valor_lexico.valor, $1.valor_lexico.num_linha, IDENTIFICADOR);
+                                    verificarUsoIdentificador(pilha_de_tabelas, $1.valor_lexico.valor, $1.valor_lexico.num_linha, IDENTIFICADOR);
                                     addFilho($$, createNodo($1));
                                     addFilho($$, $3);
                                    }
      ;
 // Chamada de Função
 fcall: TK_IDENTIFICADOR '(' args_list ')'   {$$ = createFcallNodo($1);
-                                            verificarUsoIdentificador(lista_tabelas, $1.valor_lexico.valor, $1.valor_lexico.num_linha, FUNCAO);
+                                            verificarUsoIdentificador(pilha_de_tabelas, $1.valor_lexico.valor, $1.valor_lexico.num_linha, FUNCAO);
                                             addFilho($$,$3);
                                              }
      ;
@@ -336,11 +334,3 @@ literal: TK_LIT_INT           {$$ = createNodo($1);}
      | TK_LIT_TRUE            {$$ = createNodo($1);}
      ;
 %%
-
-void empilha_tabela_escopo() {
-    empilhar(&lista_tabelas, criaTabela());
-}
-
-void desempilha_tabela_escopo() {
-    desempilhar(&lista_tabelas);
-}
