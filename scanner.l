@@ -16,32 +16,32 @@ numero    [0-9]
 id        [a-z_][a-z_0-9]*
 %%
 
-"int"             {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_INT;}
-"float"           {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_FLOAT;}
-"bool"            {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_BOOL;}
-"if"              {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_IF;}
-"else"            {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_ELSE;}
-"while"           {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_WHILE;}
-"return"          {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_PR_RETURN;}
+"int"             {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INTEIRO, yylineno); return TK_PR_INT;}
+"float"           {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, FLOAT, yylineno); return TK_PR_FLOAT;}
+"bool"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOLEANO, yylineno); return TK_PR_BOOL;}
+"if"              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_IF;}
+"else"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_ELSE;}
+"while"           {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_WHILE;}
+"return"          {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_RETURN;}
 
-"false"           {yylval.valor_lexico = createValorLexico(yytext, LITERAL, yylineno); return TK_LIT_FALSE;}
-"true"            {yylval.valor_lexico = createValorLexico(yytext, LITERAL, yylineno); return TK_LIT_TRUE;}
+"false"           {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOLEANO, yylineno); return TK_LIT_FALSE;}
+"true"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOLEANO, yylineno); return TK_LIT_TRUE;}
 
-{id}              {yylval.valor_lexico = createValorLexico(yytext, IDENTIFICADOR, yylineno); return TK_IDENTIFICADOR;}  
+{id}              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_IDENTIFICADOR;}  
 
-{numero}*"."{numero}+    {yylval.valor_lexico = createValorLexico(yytext, LITERAL, yylineno); return TK_LIT_FLOAT;}
-{numero}+                {yylval.valor_lexico = createValorLexico(yytext, LITERAL, yylineno); return TK_LIT_INT;}
+{numero}*"."{numero}+    {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, FLOAT, yylineno); return TK_LIT_FLOAT;}
+{numero}+                {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INTEIRO, yylineno); return TK_LIT_INT;}
 
-"<="              {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_OC_LE;}
-">="              {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_OC_GE;}
-"=="              {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_OC_EQ;}
-"!="              {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_OC_NE;}
-"&"               {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_OC_AND;}
-"|"               {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return TK_OC_OR;}
+"<="              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_LE;}
+">="              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_GE;}
+"=="              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_EQ;}
+"!="              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_NE;}
+"&"               {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_AND;}
+"|"               {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_OR;}
 
 "//".*
 
-[-,;(){}+*/%<>|~=!] {yylval.valor_lexico = createValorLexico(yytext, OUTRO, yylineno); return yytext[0];}
+[-,;(){}+*/%<>|~=!] {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return yytext[0];}
 [ \t\n]
 
 "/*"               BEGIN(comment);

@@ -6,19 +6,28 @@
 
 typedef enum TIPO_TOKEN
 {
-    IDENTIFICADOR,
-    LITERAL,
-    OUTRO
+    FLOAT,
+    INTEIRO,
+    BOOLEANO,
+    SEM_TIPO
 } TIPO_TOKEN;
+
+typedef enum NATUREZA
+{
+    ID,
+    FUNC,
+    SEM_NATUREZA
+} NATUREZA;
 
 typedef struct VALOR_LEXICO
 {
     int num_linha;
+    NATUREZA natu;
     TIPO_TOKEN tipo;
     char* valor;
 } VALOR_LEXICO;
 
-VALOR_LEXICO createValorLexico(char* valor, TIPO_TOKEN tipo, int num_linha);
+VALOR_LEXICO createValorLexico(char* valor, NATUREZA natu, TIPO_TOKEN tipo, int num_linha);
 void freeValorLexico(VALOR_LEXICO valor_lexico);
 
 #endif

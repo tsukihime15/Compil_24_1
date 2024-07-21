@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tabela_simbolo.h"
+#include "valor_lexico.h"
 // Códigos de erro
 #define ERR_UNDECLARED 10
 #define ERR_DECLARED 11 
@@ -29,6 +30,16 @@ PilhaTabelaSimbolos* criarPilha() {
     return pilha;
 }
 
+EntradaTabelaSimbolos criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){  
+    EntradaTabelaSimbolos* entrada = (EntradaTabelaSimbolos*)malloc(sizeof(EntradaTabelaSimbolos));
+    entrada->linha = valor_lexico.num_linha;
+    entrada->natureza = valor_lexico.natu;  // IDENTIFICADOR == ID/ FUNCAO == FUNC
+    //entrada->tipo = valor_lexico.tipo;      // if (valor.lexico.tipo == INTEIRO) strccpy(entrada->tipo, "int" ); 
+    //strcpy(entrada->valor, valor_lexico.valor);
+
+    return *entrada;
+}
+
 void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela) {
     PilhaTabelaSimbolos* novaPilha = (PilhaTabelaSimbolos*)malloc(sizeof(PilhaTabelaSimbolos));
     novaPilha->tabela = tabela;
@@ -49,7 +60,6 @@ TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha) {
     if (pilha == NULL) return NULL;
     return pilha->tabela;
 }
-
 
 void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema, int linha) {
     PilhaTabelaSimbolos* atual = pilha;
@@ -94,7 +104,6 @@ void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, i
     printf("Erro semântico na linha %d: Identificador '%s' não declarado (ERR_UNDECLARED).\n", linha, lexema);
     exit(ERR_UNDECLARED);
 }
-
 
 char* inferirTipo(AST* no, PilhaTabelaSimbolos* pilha) {
     if (no->filhoEsquerdo != NULL && no->filhoDireito != NULL) {
