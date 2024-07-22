@@ -28,13 +28,12 @@ typedef struct AST {
 void criaTabelaGlobal(PilhaTabelaSimbolos* entrada);
 
 PilhaTabelaSimbolos* criarPilha();
-EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico);
 void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela);
 void desempilhar(PilhaTabelaSimbolos** pilha);
 TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha);
-void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema, int linha);
+void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema);
 void declararIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, EntradaTabelaSimbolos entrada, int linha);
-void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, int linha, Natureza naturezaEsperada);
+void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, int linha, int naturezaEsperada);
 char* inferirTipo(AST* no, PilhaTabelaSimbolos* pilha);
 void limparPilha();
 #endif

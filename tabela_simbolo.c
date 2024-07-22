@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tabela_simbolo.h"
-
+#include "valor_lexico.h"
 //Funcao para inicializar uma tabela de simbolos a partir da main
 void criaTabelaMain(TabelaSimbolos* entrada)
 {
@@ -24,8 +24,38 @@ Simbolo* criarSimbolo(const char* lexema, EntradaTabelaSimbolos entrada) {
     Simbolo* simbolo = (Simbolo*)malloc(sizeof(Simbolo));
     simbolo->lexema = strdup(lexema);
     simbolo->entrada = entrada;
-    simbolo->proximo = NULL;
     return simbolo;
+}
+
+EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){
+    /*if(valor_lexico == NULL){
+        printf("valor_lexico vazio");
+        exit(1);
+    }*/  
+    EntradaTabelaSimbolos* entrada = (EntradaTabelaSimbolos*)malloc(sizeof(EntradaTabelaSimbolos));
+    entrada->linha = valor_lexico.num_linha;
+    
+    if (valor_lexico.natu == ID){
+        entrada->natureza = IDENTIFICADOR;
+    }
+    else if (valor_lexico.natu == FUNC){
+        entrada->natureza = FUNCAO;
+    }
+    //entrada->tipo = valor_lexico.tipo;      
+    if (valor_lexico.tipo == INTEIRO){   
+        strcpy(entrada->tipo, "int" );
+        entrada->valor.int_val = atoi(valor_lexico.valor);
+    }
+    else if (valor_lexico.tipo == BOOLEANO){   
+        strcpy(entrada->tipo, "bool" );
+        strcpy(entrada->valor.string_val, valor_lexico.valor);
+    }
+    else if (valor_lexico.tipo == FLOAT){   
+        strcpy(entrada->tipo, "float" );
+        entrada->valor.float_val = atof(valor_lexico.valor);
+    }
+
+    return entrada;
 }
 
 // Função para inserir uma nova entrada na tabela de símbolos

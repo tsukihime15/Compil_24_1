@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "arvore.h"
 #include "pilha_tabelas.h"
-#include "parser3.tab.h"
+#include "parser.tab.h"
 
 
 %}

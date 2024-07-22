@@ -4,15 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "valor_lexico.h"
 
-typedef enum {
-    IDENTIFICADOR,
-    FUNCAO
-} Natureza;
+#define FUNCAO 1
+#define IDENTIFICADOR 2
 
 typedef struct {
     int linha;
-    Natureza natureza;
+    int natureza;
     char* tipo;
     union {
         int int_val;
@@ -35,6 +34,7 @@ void criaTabelaMain(TabelaSimbolos* entrada);
 
 TabelaSimbolos* criarTabelaSimbolos();
 Simbolo* criarSimbolo(const char* lexema, EntradaTabelaSimbolos entrada);
+EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico);
 void inserirSimbolo(TabelaSimbolos* tabela, const char* lexema, EntradaTabelaSimbolos entrada);
 Simbolo* buscarSimbolo(TabelaSimbolos* tabela, const char* lexema);
 void liberarTabelaSimbolos(TabelaSimbolos* tabela);

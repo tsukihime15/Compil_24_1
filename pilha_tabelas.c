@@ -1,5 +1,5 @@
 #include "pilha_tabelas.h"
-
+#include "tabela_simbolo.h"
 // Funções para manipular a pilha de tabelas de símbolos
 PilhaTabelaSimbolos* criarPilha() {
     PilhaTabelaSimbolos* pilha = (PilhaTabelaSimbolos*)malloc(sizeof(PilhaTabelaSimbolos));
@@ -13,37 +13,6 @@ void criaTabelaGlobal(PilhaTabelaSimbolos* entrada)
     if (!entrada) return;
 
     entrada = criarPilha();
-}
-
-EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){
-    /*if(valor_lexico == NULL){
-        printf("valor_lexico vazio");
-        exit(1);
-    }*/  
-    EntradaTabelaSimbolos* entrada = (EntradaTabelaSimbolos*)malloc(sizeof(EntradaTabelaSimbolos));
-    entrada->linha = valor_lexico.num_linha;
-    
-    if (valor_lexico.natu == ID){
-        entrada->natureza = IDENTIFICADOR;
-    }
-    else if (valor_lexico.natu == FUNC){
-        entrada->natureza = FUNCAO;
-    }
-    //entrada->tipo = valor_lexico.tipo;      
-    if (valor_lexico.tipo == INTEIRO){   
-        strcpy(entrada->tipo, "int" );
-        entrada->valor.int_val = atoi(valor_lexico.valor);
-    }
-    else if (valor_lexico.tipo == BOOLEANO){   
-        strcpy(entrada->tipo, "bool" );
-        strcpy(entrada->valor.string_val, valor_lexico.valor);
-    }
-    else if (valor_lexico.tipo == FLOAT){   
-        strcpy(entrada->tipo, "float" );
-        entrada->valor.float_val = atof(valor_lexico.valor);
-    }
-
-    return entrada;
 }
 
 void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela) {
@@ -68,15 +37,16 @@ TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha) {
 }
 
 void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema) {
+    int linha = 0;
     PilhaTabelaSimbolos* atual = pilha;
     while (atual != NULL) {
         Simbolo* simbolo = buscarSimbolo(atual->tabela, lexema);
+        linha = simbolo->entrada.linha;
         if (simbolo != NULL) {
             return;
         }
         atual = atual->proximo;
-    }
-    int linha = atual->entrada.linha;
+    } 
     printf("Erro semântico na linha %d: Identificador '%s' não declarado (ERR_UNDECLARED).\n", linha, lexema);
     exit(ERR_UNDECLARED);
 }
@@ -90,7 +60,7 @@ void declararIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, Entra
     inserirSimbolo(tabelaAtual, lexema, entrada);
 }
 
-void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, int linha, Natureza naturezaEsperada) {
+void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, int linha, int naturezaEsperada) {
     PilhaTabelaSimbolos* atual = pilha;
     while (atual != NULL) {
         Simbolo* simbolo = buscarSimbolo(atual->tabela, lexema);
@@ -138,9 +108,9 @@ char* inferirTipo(AST* no, PilhaTabelaSimbolos* pilha) {
     return no->tipo;  // Retorna o tipo se for um nó folha
 }
 
-void limparPilha() {
-    while (pilha_tabelas != NULL) {
-        desempilhar(&pilha_tabelas);
+void limparPilha(PilhaTabelaSimbolos* pilha) {
+    while (pilha != NULL) {
+        desempilhar(&pilha);
     }
 }
 
