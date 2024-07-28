@@ -20,6 +20,7 @@ void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela) {
     novaPilha->tabela = tabela;
     novaPilha->proximo = *pilha;
     *pilha = novaPilha;
+printf ("empilhar esta funcionando!\n");
 }
 
 void desempilhar(PilhaTabelaSimbolos** pilha) {
@@ -29,6 +30,7 @@ void desempilhar(PilhaTabelaSimbolos** pilha) {
     *pilha = (*pilha)->proximo;
     liberarTabelaSimbolos(temp->tabela);
     free(temp);
+printf ("desempilhar esta funcionando!\n");
 }
 
 TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha) {
