@@ -249,8 +249,10 @@ empilha_tabela_escopo: /* Vazio */ {
     tabela_escopo = criarTabelaSimbolos(); printf("Escopo criado\n");
     empilhar(pilha_de_tabelas, 
     tabela_escopo); printf("Tabela de escopo empilhada\n");
+    printf("fim da tabela escopo\n");
     }; 
-desempilha_tabela_escopo: printf ("chama função desempilha!\n"); { desempilhar(pilha_de_tabelas); printf("Tabela de escopo desempilhada\n"); };
+printf ("chama função desempilha!\n");
+desempilha_tabela_escopo:  { desempilhar(pilha_de_tabelas); printf("Tabela de escopo desempilhada\n"); };
 limpa_pilha: { limparPilha(pilha_de_tabelas); printf("Pilha limpa\n");};
 
 
