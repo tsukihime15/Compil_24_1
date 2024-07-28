@@ -3,14 +3,6 @@
 #include <string.h>
 #include "tabela_simbolo.h"
 #include "valor_lexico.h"
-//Funcao para inicializar uma tabela de simbolos a partir da main
-void criaTabelaMain(TabelaSimbolos* entrada)
-{
-    if (!entrada) return;
-
-    entrada = criarTabelaSimbolos();
-}
-
 
 // Função para criar uma nova tabela de símbolos
 TabelaSimbolos* criarTabelaSimbolos() {
@@ -20,7 +12,7 @@ TabelaSimbolos* criarTabelaSimbolos() {
 }
 
 // Função para criar uma nova entrada na tabela de símbolos
-Simbolo* criarSimbolo(const char* lexema, EntradaTabelaSimbolos entrada) {
+Simbolo* criarSimbolo(char* lexema, EntradaTabelaSimbolos entrada) {
     Simbolo* simbolo = (Simbolo*)malloc(sizeof(Simbolo));
     simbolo->lexema = strdup(lexema);
     simbolo->entrada = entrada;
@@ -59,14 +51,14 @@ EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico){
 }
 
 // Função para inserir uma nova entrada na tabela de símbolos
-void inserirSimbolo(TabelaSimbolos* tabela, const char* lexema, EntradaTabelaSimbolos entrada) {
+void inserirSimbolo(TabelaSimbolos* tabela,char* lexema, EntradaTabelaSimbolos entrada) {
     Simbolo* simbolo = criarSimbolo(lexema, entrada);
     simbolo->proximo = tabela->primeiro;
     tabela->primeiro = simbolo;
 }
 
 // Função para buscar um símbolo na tabela de símbolos
-Simbolo* buscarSimbolo(TabelaSimbolos* tabela, const char* lexema) {
+Simbolo* buscarSimbolo(TabelaSimbolos* tabela,char* lexema) {
     Simbolo* atual = tabela->primeiro;
     while (atual != NULL) {
         if (strcmp(atual->lexema, lexema) == 0) {

@@ -8,19 +8,11 @@ PilhaTabelaSimbolos* criarPilha() {
     return pilha;
 }
 
-void criaTabelaGlobal(PilhaTabelaSimbolos* entrada)
-{
-    if (!entrada) return;
-
-    entrada = criarPilha();
-}
-
 void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela) {
     PilhaTabelaSimbolos* novaPilha = (PilhaTabelaSimbolos*)malloc(sizeof(PilhaTabelaSimbolos));
     novaPilha->tabela = tabela;
     novaPilha->proximo = *pilha;
     *pilha = novaPilha;
-printf ("empilhar esta funcionando!\n");
 }
 
 void desempilhar(PilhaTabelaSimbolos** pilha) {
@@ -30,7 +22,6 @@ void desempilhar(PilhaTabelaSimbolos** pilha) {
     *pilha = (*pilha)->proximo;
     liberarTabelaSimbolos(temp->tabela);
     free(temp);
-printf ("desempilhar esta funcionando!\n");
 }
 
 TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha) {
@@ -38,12 +29,17 @@ TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha) {
     return pilha->tabela;
 }
 
-void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema) {
+void verificarDeclaracao(PilhaTabelaSimbolos* pilha, char* lexema) {
     int linha = 0;
+printf("0");
     PilhaTabelaSimbolos* atual = pilha;
+    printf("1");
     while (atual != NULL) {
+printf("2");
         Simbolo* simbolo = buscarSimbolo(atual->tabela, lexema);
+printf("3");
         linha = simbolo->entrada.linha;
+printf("4");
         if (simbolo != NULL) {
             return;
         }
@@ -53,7 +49,7 @@ void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema) {
     exit(ERR_UNDECLARED);
 }
 
-void declararIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, EntradaTabelaSimbolos entrada, int linha) {
+void declararIdentificador(PilhaTabelaSimbolos* pilha, char* lexema, EntradaTabelaSimbolos entrada, int linha) {
     TabelaSimbolos* tabelaAtual = obterTabelaAtual(pilha);
     if (buscarSimbolo(tabelaAtual, lexema) != NULL) {
         printf("Erro semântico na linha %d: Identificador '%s' já declarado (ERR_DECLARED).\n", linha, lexema);
@@ -62,7 +58,7 @@ void declararIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, Entra
     inserirSimbolo(tabelaAtual, lexema, entrada);
 }
 
-void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, int linha, int naturezaEsperada) {
+void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, char* lexema, int linha, int naturezaEsperada) {
     PilhaTabelaSimbolos* atual = pilha;
     while (atual != NULL) {
         Simbolo* simbolo = buscarSimbolo(atual->tabela, lexema);

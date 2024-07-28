@@ -15,8 +15,8 @@
 
 // Estrutura da pilha de tabelas de símbolos
 typedef struct PilhaTabelaSimbolos {
-    TabelaSimbolos* tabela;
-    struct PilhaTabelaSimbolos* proximo;
+    TabelaSimbolos *topo;
+    TabelaSimbolos **tabelas;
 } PilhaTabelaSimbolos;
 
 typedef struct AST {
@@ -25,15 +25,18 @@ typedef struct AST {
     struct AST* filhoDireito;
 } AST;
 
-void criaTabelaGlobal(PilhaTabelaSimbolos* entrada);
-
 PilhaTabelaSimbolos* criarPilha();
-void empilhar(PilhaTabelaSimbolos** pilha, TabelaSimbolos* tabela);
-void desempilhar(PilhaTabelaSimbolos** pilha);
+void empilhar(PilhaTabelaSimbolos* pilha, TabelaSimbolos* tabela);
+void desempilhar(PilhaTabelaSimbolos* pilha);
+
 TabelaSimbolos* obterTabelaAtual(PilhaTabelaSimbolos* pilha);
-void verificarDeclaracao(PilhaTabelaSimbolos* pilha, const char* lexema);
-void declararIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, EntradaTabelaSimbolos entrada, int linha);
-void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, const char* lexema, int linha, int naturezaEsperada);
+
+void verificarDeclaracao(PilhaTabelaSimbolos* pilha, char* lexema);
+
+void declararIdentificador(PilhaTabelaSimbolos* pilha, char* lexema, EntradaTabelaSimbolos entrada, int linha);
+
+void verificarUsoIdentificador(PilhaTabelaSimbolos* pilha, char* lexema, int linha, int naturezaEsperada);
+
 char* inferirTipo(AST* no, PilhaTabelaSimbolos* pilha);
-void limparPilha();
+void limparPilha(PilhaTabelaSimbolos* pilha);
 #endif

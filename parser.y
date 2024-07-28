@@ -10,9 +10,9 @@ int yyparse(void);
 extern void yyerror (char const *mensagem);
 
 extern void* arvore;
-void *pilha_de_tabelas;
-void *tabela_global;
-void *tabela_escopo;
+PilhaTabelaSimbolos *pilha_de_tabelas;
+TabelaSimbolos *tabela_global;
+TabelaSimbolos *tabela_escopo;
 
 %}
 
@@ -67,8 +67,7 @@ void *tabela_escopo;
 %type<nodo> raiz
 %type<nodo> program_list
 %type<nodo> element
-%type<nodo> ident_func
-%type<nodo> ident_decl
+%type<nodo> ident
 %type<nodo> ident_param
 %type<nodo> func
 %type<nodo> type
@@ -135,9 +134,11 @@ element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
 
         | func {$$ = $1;}
 ;
-ident_decl: TK_IDENTIFICADOR {$$ = createNodo($1); verificarDeclaracao(pilha_de_tabelas,$1.valor);
-EntradaTabelaSimbolos* entrada = criaEntradaTabelaSimbolos($1);
-declararIdentificador(pilha_de_tabelas, $1.valor, *entrada, $1.num_linha);
+ident: TK_IDENTIFICADOR  {$$ = createNodo($1); printf("Criou nó\n");
+char* novo_lexema = strdup($$->valor_lexico.valor);  printf("Fez strdup\n");
+verificarDeclaracao(pilha_de_tabelas,novo_lexema); printf("Verificou declaracao\n");
+EntradaTabelaSimbolos* entrada = criaEntradaTabelaSimbolos($1); printf("Criou entrada na tabela\n");
+declararIdentificador(pilha_de_tabelas, $$->valor_lexico.valor, *entrada, $$->valor_lexico.num_linha); printf("Declarou identificador\n");
 };
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
@@ -147,8 +148,8 @@ decl_global: type id_list ','             {$$ = NULL;}  // Declaracoes nao sao u
 decl_local: type id_list                 {$$ = NULL;} 
 ;
 // Lista de identificadores
-id_list: id_list ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
-     | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
+id_list: id_list ';' ident    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
+     | ident                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
      ;
 // Tipos
 type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos        
@@ -161,12 +162,9 @@ func: empilha_tabela_escopo header body desempilha_tabela_escopo {$$ = $2;
                                                                  addFilho($$,$3);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $7;}
+header: '(' params_list_void ')' TK_OC_OR type '/' ident   {$$ = $7;}
 ;
-ident_func: TK_IDENTIFICADOR  {$$ = createNodo($1); verificarDeclaracao(pilha_de_tabelas,$1.valor); printf("Verificou declaracao\n");
-EntradaTabelaSimbolos* entrada = criaEntradaTabelaSimbolos($1); printf("Criou entrada na tabela\n");
-declararIdentificador(pilha_de_tabelas, $1.valor, *entrada, $1.num_linha); printf("Declarou identificador\n");
-};
+
 // Params: Tipo e lista de parâmetros
 params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
      | {$$=NULL;}                       
@@ -247,13 +245,10 @@ else_command: TK_PR_ELSE command_block                      {$$ = $2;}
 cria_pilha: { pilha_de_tabelas = criarPilha(); printf("Pilha criada\n"); };
 empilha_tabela_escopo: /* Vazio */ { 
     tabela_escopo = criarTabelaSimbolos(); printf("Escopo criado\n");
-    empilhar(pilha_de_tabelas, 
-    tabela_escopo); printf("Tabela de escopo empilhada\n");
-    printf("fim da tabela escopo\n");
+    empilhar(&pilha_de_tabelas, tabela_escopo); printf("Tabela de escopo empilhada\n");
     }; 
-printf ("chama função desempilha!\n");
-desempilha_tabela_escopo:  { desempilhar(pilha_de_tabelas); printf("Tabela de escopo desempilhada\n"); };
-limpa_pilha: { limparPilha(pilha_de_tabelas); printf("Pilha limpa\n");};
+desempilha_tabela_escopo: { desempilhar(&pilha_de_tabelas); printf("Tabela de escopo desempilhada\n"); };
+limpa_pilha: { limparPilha(&pilha_de_tabelas); printf("Pilha limpa\n");};
 
 
 //Expressao

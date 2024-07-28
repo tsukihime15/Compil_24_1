@@ -1,4 +1,7 @@
-() | int / fa {}
-() | int / fb {}
-() | int / fc {}
-() | int / fd {}
+() | int / fa {
+    int a,
+    a = 1,
+    a = 2,
+    a = 3,
+    a = 4,
+}

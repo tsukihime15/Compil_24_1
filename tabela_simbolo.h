@@ -13,29 +13,25 @@ typedef struct {
     int linha;
     int natureza;
     char* tipo;
-    union {
-        int int_val;
-        float float_val;
-        char* string_val;
-    } valor;
+    struct EntradaTabelaSimbolos *proximo;
 } EntradaTabelaSimbolos;
 
 typedef struct Simbolo {
     char* lexema;
-    EntradaTabelaSimbolos entrada;
-    struct Simbolo* proximo;
+    EntradaTabelaSimbolos *entrada;
 } Simbolo;
 
 typedef struct {
-    Simbolo* primeiro;
+    Simbolo **simbolos;
+    struct TabelaSimbolos* pai;
+    struct TabelaSimbolos* proximo;
 } TabelaSimbolos;
 
-void criaTabelaMain(TabelaSimbolos* entrada);
 
 TabelaSimbolos* criarTabelaSimbolos();
-Simbolo* criarSimbolo(const char* lexema, EntradaTabelaSimbolos entrada);
+Simbolo* criarSimbolo(char* lexema, EntradaTabelaSimbolos entrada);
 EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico);
-void inserirSimbolo(TabelaSimbolos* tabela, const char* lexema, EntradaTabelaSimbolos entrada);
-Simbolo* buscarSimbolo(TabelaSimbolos* tabela, const char* lexema);
+void inserirSimbolo(TabelaSimbolos* tabela,char* lexema, EntradaTabelaSimbolos entrada);
+Simbolo* buscarSimbolo(TabelaSimbolos* tabela, char* lexema);
 void liberarTabelaSimbolos(TabelaSimbolos* tabela);
 #endif
