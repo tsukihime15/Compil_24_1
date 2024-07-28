@@ -248,7 +248,7 @@ empilha_tabela_escopo: /* Vazio */ {
     empilhar(&pilha_de_tabelas, tabela_escopo); printf("Tabela de escopo empilhada\n");
     }; 
 desempilha_tabela_escopo: { desempilhar(&pilha_de_tabelas); printf("Tabela de escopo desempilhada\n"); };
-limpa_pilha: { limparPilha(&pilha_de_tabelas); printf("Pilha limpa\n");};
+limpa_pilha: { limparPilha(pilha_de_tabelas); printf("Pilha limpa\n");};
 
 
 //Expressao
