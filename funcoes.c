@@ -1,8 +1,3 @@
-/* PROJETO DE COMPILADORES - ETAPA 5  */
-
-/* Andrei Pochmann Koenich 	 - Matrícula 00308680 */
-/* Izaias Saturnino de Lima Neto - Matrícula 00326872 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
