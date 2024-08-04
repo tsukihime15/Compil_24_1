@@ -2,24 +2,26 @@
 /* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe - 00219819 */
 #include <stdio.h>
 #include "arvore.h"
-#include "pilha_tabelas.h"
-#include "tabela_simbolo.h"
+#include "valor_lexico.h"
+#include "funcoes.h"
 
 int yylex(void);
 int yyparse(void);
 extern void yyerror (char const *mensagem);
 
 extern void* arvore;
-PilhaTabelaSimbolos *pilha_de_tabelas;
-TabelaSimbolos *tabela_global;
-TabelaSimbolos *tabela_escopo;
+extern Lista_tabelas *lista_tabelas;
+extern Tabela *tabela_global;
+extern Tabela *tabela_escopo;
+extern int tipo_atual;
 
 %}
 
 // %code requires
 // {
-//     #include "arvore.h"
-//      #include "pilha_tabelas.h"
+//     #include "arvore.h"   
+//     #include "valor_lexico.h"
+//     #include "funcoes.h"
 // }
 
 %union
@@ -64,15 +66,17 @@ TabelaSimbolos *tabela_escopo;
 %token<valor_lexico> '('
 
 %type<nodo> programa
-%type<nodo> raiz
 %type<nodo> program_list
 %type<nodo> element
-%type<nodo> ident
+%type<nodo> ident_func
+%type<nodo> ident_decl
 %type<nodo> ident_param
 %type<nodo> func
 %type<nodo> type
 %type<nodo> decl_global
 %type<nodo> decl_local
+%type<nodo> id_global
+%type<novo> id_local
 %type<nodo> id_list
 %type<nodo> header
 %type<nodo> body
@@ -103,17 +107,15 @@ TabelaSimbolos *tabela_escopo;
 
 
 %%
-
 // Símbolo inicial
-raiz: cria_pilha
-      empilha_tabela_escopo 
-      programa
-      desempilha_tabela_escopo 
-      limpa_pilha                { $$ = $3; arvore = $$; tabela_global = tabela_escopo;}
-;
-programa: program_list               {$$ = $1; arvore = $$;}
-;                      
-programa:                            {$$ = NULL; arvore = NULL; }
+programa: program_list               {
+     $$ = $1; arvore = $$;
+          imprimeInstrucoesNodo($$);
+          popTabela(&lista_tabelas);
+};                      
+programa:                            {$$ = NULL; arvore = NULL;
+          
+ }
 ;
 
 program_list: element program_list { if($1 == NULL) 
@@ -130,26 +132,39 @@ program_list: element program_list { if($1 == NULL)
                 | element {$$=$1;} 
 
 ;
-element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
+element: decl_global  { // Declaracoes nao sao usadas nessa etapa
 
         | func {$$ = $1;}
-;
-ident: TK_IDENTIFICADOR  {$$ = createNodo($1); printf("Criou nó\n");
-char* novo_lexema = strdup($$->valor_lexico.valor);  printf("Fez strdup\n");
-verificarDeclaracao(pilha_de_tabelas,novo_lexema); printf("Verificou declaracao\n");
-EntradaTabelaSimbolos* entrada = criaEntradaTabelaSimbolos($1); printf("Criou entrada na tabela\n");
-declararIdentificador(pilha_de_tabelas, $$->valor_lexico.valor, *entrada, $$->valor_lexico.num_linha); printf("Declarou identificador\n");
 };
+ident_decl: TK_IDENTIFICADOR {$$ = createNodo($1);}
+;
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
-decl_global: type id_list ','             {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
+decl_global: type { tipo_atual = verificaTipo($1->valor_token); } id_global ','   // Declaracoes nao sao usadas nessa etapa
 ;
+id_global: TK_IDENTIFICADOR ',' id_global //lista de declaração global 	
+{ 
+	$1->tipo_token = tipo_atual; 
+	$1->tamanho_token = infereTamanho(tipo_atual); 
+	verificaERR_DECLARED(lista_tabelas,$1); 
+	insereUltimaTabela(&lista_tabelas, $1); 
+};
+
+id_global:  TK_IDENTIFICADOR						
+{ 
+	$1->tipo_token = tipo_atual; 
+	$1->tamanho_token = infereTamanho(tipo_atual); 
+	verificaERR_DECLARED(lista_tabelas,$1); 
+	insereUltimaTabela(&lista_tabelas, $1);
+};
+
+
 //Declaração de variáveis locais
 decl_local: type id_list                 {$$ = NULL;} 
 ;
 // Lista de identificadores
-id_list: id_list ';' ident    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
-     | ident                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
+id_list: id_list ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
+     | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
      ;
 // Tipos
 type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos        
@@ -157,45 +172,118 @@ type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos
      | TK_PR_BOOL  {$$ = NULL;} //tipos nao criam nodos nem sao filhos         
      ;
 // Função => cabeçalho e corpo
-// OBS: >>CABEÇALHOS<< FICAM NO ESCOPO GLOBAL
-func: empilha_tabela_escopo header body desempilha_tabela_escopo {$$ = $2;
-                                                                 addFilho($$,$3);}
+func: header body                            {$$ = $1;
+                                              addFilho($$,$2);}
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '(' params_list_void ')' TK_OC_OR type '/' ident   {$$ = $7;}
+//não sei se está certo a função, favor verificar
+header: '(' push_tabela_escopo params_list_void ')' TK_OC_OR type  {
+
+     tipo_atual = verificaTipo($7->valor_token);
+	$1->tipo_token = tipo_atual;
+	$1->natureza_token = FUNCTION;
+	$1->tamanho_token = infereTamanho(tipo_atual);
+		
+	verificaERR_DECLARED(lista_tabelas,$1);
+	insereEntradaTabela(&(lista_tabelas->tabela_simbolos), $1);
+     
+     }
 ;
+ident_func: TK_IDENTIFICADOR  {$$ = createNodo($1);}
 
 // Params: Tipo e lista de parâmetros
-params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
+params_list_void: params_list {$$ = $1;} //parametros nao criam nodos nem sao filhos
      | {$$=NULL;}                       
      ;
-params_list: param ';' params_list {$$=NULL;}//parametros nao criam nodos nem sao filhos
-    | param {$$=NULL;}
+params_list: param ';' params_list { $$ = $1; adicionaNodo($$, $3);}//parametros nao criam nodos nem sao filhos
+    | param {$$=NULL;} //verificar a necessidade do NULL
      ;
 param: type ident_param {$$=NULL;}//parametros nao criam nodos nem sao filhos
      ;
-ident_param: TK_IDENTIFICADOR {$$=NULL;}//parametros nao criam nodos nem sao filhos
-;
+ident_param: TK_IDENTIFICADOR {
+     $$ = criaNodo($2); 
+	tipo_atual = verificaTipo($1->valor_token);
+	$2->tipo_token = tipo_atual;
+	$2->natureza_token = VARIABLE;
+	$2->tamanho_token = infereTamanho(tipo_atual);	
+	verificaERR_DECLARED(lista_tabelas,$2);
+	insereUltimaTabela(&lista_tabelas, $2);
+     }
+
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
-body: command_block                               {$$ = $1;}
+body: command_block      
+                         {
+     $$ = criaNodo($1);
+	if($8 != NULL)
+	{
+		adicionaNodo($$, $8);
+		$$->info->codigo = $8->info->codigo;
+	}
+}
      ;
 // Aceita bloco com comando vazio 
 command_block: '{''}'                         {$$ = NULL;}
      ;
 command_block: '{' command_list '}'           {$$ = $2;}
-;
+     ;
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}
                                      else
                                         { 
                                         if($3 == NULL) {$$ = $1;}                   
                                             else { 
-                                                {$$ = $1; addFilho($$,$3);}
+                                                {
+                                                $$ = $1; 
+                                                addFilho($$,$3);
+                                                $$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+                                                }
                                                  }
                                         
                                         }    }
      | simple_command ','                         {$$ = $1;}
      ;
+
+command_list: push_tabela_escopo command_block ',' command_list
+{
+	if($2 != NULL && $4 != NULL)
+	{
+		$$ = $2;
+		concatenate_list($$, $4);
+		$$->info->codigo = concatenaCodigo($2->info->codigo, $4->info->codigo);
+	}
+	
+	else if($2 != NULL)
+		$$ = $2;
+	
+	else if($4 != NULL)
+		$$ = $4;
+
+	else
+		$$ = NULL;
+};
+command_list: push_tabela_escopo command_block ',' { $$ = $2; };  
+push_tabela_escopo: { pushTabela(&lista_tabelas, tabela_escopo); }
+
+command_list: decl_local ',' command_list
+{
+	if($1 != NULL && $3 != NULL)
+	{
+		$$ = $1;
+		concatenate_list($$, $3);
+		$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+	}
+	
+	else if($1 != NULL)
+		$$ = $1;
+		
+	else if($3 != NULL)
+		$$ = $3;
+		
+	else
+		$$ = NULL;
+};
+
+command_list:	decl_local ',' { $$ = $1; };
 simple_command: command_block      {$$ = $1;}
      | decl_local                  {$$ = $1;}
      | atr                         {$$ = $1;}
@@ -203,20 +291,49 @@ simple_command: command_block      {$$ = $1;}
      | return                      {$$ = $1;}
      | cflow                       {$$ = $1;}
      ;
+decl_local: tipo_local id_list {$$=$2;};
+
+id_list: id_local {$$=$1;};
+id_list:id_local ',' id_list
+{
+	if($1 != NULL && $3 != NULL)
+	{
+		$$ = $1;
+		addFilho($$, $3);
+	}
+	
+	else if($1 != NULL)
+		$$ = $1;
+		
+	else if($3 != NULL)
+		$$ = $3;
+		
+	else
+		$$ = NULL;
+};
+
+id_local: TK_IDENTIFICADOR
+{ 
+	$$ = NULL; 
+	$1->tipo_token = tipo_atual;
+	$1->tamanho_token = infereTamanho(tipo_atual);
+	verificaERR_DECLARED(lista_tabelas, $1);
+	insereUltimaTabela(&lista_tabelas, $1); 
+};
+
 // Chamada de Atribuição
 atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
-                                    verificarUsoIdentificador(pilha_de_tabelas, $1.valor, $1.num_linha, IDENTIFICADOR);
                                     addFilho($$, createNodo($1));
                                     addFilho($$, $3);
                                    }
      ;
 // Chamada de Função
 fcall: TK_IDENTIFICADOR '(' args_list ')'   {$$ = createFcallNodo($1);
-                                            verificarUsoIdentificador(pilha_de_tabelas, $1.valor, $1.num_linha, FUNCAO);
-                                            addFilho($$,$3);
+                                              addFilho($$,$3);
+
                                              }
      ;
-
+// agora aceita argumentos vazio()
 args_list: expr  ';' args_list               {$$ = $1;
                                              addFilho($$, $3);}
      | expr                                  {$$ = $1;}
@@ -226,7 +343,7 @@ return: TK_PR_RETURN expr   {$$ = createNodo($1);
                                  addFilho($$,$2);
                                 }              
      ;
-
+//nao entendi o q eh pra por, na E3 diz "usar o lexema correspondente como label"
 // Controle de Fluxo
 cflow: TK_PR_IF '(' expr ')' command_block else_command   {$$ = createNodo($1);
                                                              addFilho($$,$3);
@@ -242,15 +359,6 @@ else_command: TK_PR_ELSE command_block                      {$$ = $2;}
      |                                                      {$$ = NULL;}
      ;
 
-cria_pilha: { pilha_de_tabelas = criarPilha(); printf("Pilha criada\n"); };
-empilha_tabela_escopo: /* Vazio */ { 
-    tabela_escopo = criarTabelaSimbolos(); printf("Escopo criado\n");
-    empilhar(&pilha_de_tabelas, tabela_escopo); printf("Tabela de escopo empilhada\n");
-    }; 
-desempilha_tabela_escopo: { desempilhar(&pilha_de_tabelas); printf("Tabela de escopo desempilhada\n"); };
-limpa_pilha: { limparPilha(pilha_de_tabelas); printf("Pilha limpa\n");};
-
-
 //Expressao
 expr: expr8                   {$$ = $1;}
      |                        {$$ = NULL;}
@@ -258,60 +366,137 @@ expr: expr8                   {$$ = $1;}
 expr8: expr8 TK_OC_OR expr7   {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("or",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
                               }
      | expr7                  {$$ = $1;}
      ;
 expr7: expr7 TK_OC_AND expr6  {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               
+  	$$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("and",$1->info->temporario,$3->info->temporario,$$->info->temporario));
                               }
      | expr6                  {$$ = $1;}
      ;
 expr6: expr6 TK_OC_EQ expr5   {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("cmp_EQ",$1->info->temporario,$3->info->temporario,$$->info->temporario));
                               }
      | expr6 TK_OC_NE expr5   {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("cmp_NE",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
                               }
      | expr5                  {$$ = $1;}
      ;
 expr5: expr5 '<' expr4        {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("cmp_LT",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
                               }
      | expr5 '>' expr4        {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("cmp_GT",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
                               }
      | expr5 TK_OC_LE expr4   {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("cmp_LE",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
                               }
      | expr5 TK_OC_GE expr4   {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+                               $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("cmp_GE",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
                               }
      | expr4                  {$$ = $1;}
      ;
-expr4: expr4 '+' expr3        {$$ = createNodo($2);                           
-                               addFilho($$, $1);
-                               addFilho($$, $3);
-                              }
-     | expr4 '-' expr3        {$$ = createNodo($2);
-                               addFilho($$, $1);
-                               addFilho($$, $3);
-                              }
+expr4: expr4 '+' expr3        
+          {$$ = createNodo($2);                           
+               addFilho($$, $1);
+               addFilho($$, $3);
+               //atualizar as funções para as variais do trabalho
+          $$->info->temporario = temporario_atual;
+  	     temporario_atual++;
+  	
+  	     $$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	     insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("add",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
+          }
+     | expr4 '-' expr3       
+          {$$ = createNodo($2);
+               addFilho($$, $1);
+               addFilho($$, $3);
+          $$->info->temporario = temporario_atual;
+  	     temporario_atual++;
+  	
+  	     $$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	     insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("sub",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+
+          }
      | expr3                  {$$ = $1;}
+     //fazer logica de atribuição
      ;
-expr3: expr3 '*' expr2        {$$ = createNodo($2);
-                               addFilho($$, $1);
-                               addFilho($$, $3);                            
+expr3: expr3 '*' expr2        
+       {$$ = createNodo($2);
+             addFilho($$, $1);
+             addFilho($$, $3); 
+             $$->info->temporario = temporario_atual;
+  	temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("mult",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+              
                               }
-     | expr3 '/' expr2        {$$ = createNodo($2);
-                               addFilho($$, $1);
-                               addFilho($$, $3);
+     | expr3 '/' expr2        
+         {$$ = createNodo($2);
+               addFilho($$, $1);
+               addFilho($$, $3);
+               $$->info->temporario = temporario_atual;
+  	          temporario_atual++;
+  	
+  	$$->info->codigo = concatenaCodigo($1->info->codigo, $3->info->codigo);
+  	insereInstrucao(&($$->info->codigo), criaInstrucaoAritmeticaLogica("div",$1->info->temporario,$3->info->temporario,$$->info->temporario));
+  	
                               }
      | expr3 '%' expr2        {$$ = createNodo($2);
                                addFilho($$, $1);
@@ -333,9 +518,20 @@ expr1: '(' expr ')'           {$$ = $2;}
 expr0: operand                {$$ = $1;}
      ;
 
-operand: TK_IDENTIFICADOR     {$$ = createNodo($1);}
+/*verificar as chaves pois me confundi*/
+operand: TK_IDENTIFICADOR   {  {$$ = createNodo($1);}
      | literal                {$$ = $1;}
      | fcall                  {$$ = $1;}
+     verificaERR_UNDECLARED_FUNCTION(lista_tabelas,$1);
+	$1->tipo_token = obtemTipo(lista_tabelas,$1);
+	$1->tamanho_token = infereTamanho($1->tipo_token);
+	
+	$1->temporario = temporario_atual;
+	temporario_atual++;
+	atualizaRegistradorEscopo(lista_tabelas, registrador_escopo, $1->valor_token);
+	deslocamento_atual = achaDeslocamento(lista_tabelas,$1->valor_token);
+	insereInstrucao(&($$->info->codigo), criaInstrucao_loadAI($1->temporario,registrador_escopo,deslocamento_atual));
+}
      ;
 literal: TK_LIT_INT           {$$ = createNodo($1);}
      | TK_LIT_FLOAT           {$$ = createNodo($1);}
