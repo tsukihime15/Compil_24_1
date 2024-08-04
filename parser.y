@@ -179,13 +179,13 @@ func: header body                            {$$ = $1;
 //não sei se está certo a função, favor verificar
 header: '(' push_tabela_escopo params_list_void ')' TK_OC_OR type  {
 
-     tipo_atual = verificaTipo($7->valor_token);
-	$1->tipo_token = tipo_atual;
-	$1->natureza_token = FUNCTION;
-	$1->tamanho_token = infereTamanho(tipo_atual);
+     tipo_atual = verificaTipo($6->valor_token);
+	$2->tipo_token = tipo_atual;
+	$2->natureza_token = FUNCTION;
+	$2->tamanho_token = infereTamanho(tipo_atual);
 		
-	verificaERR_DECLARED(lista_tabelas,$1);
-	insereEntradaTabela(&(lista_tabelas->tabela_simbolos), $1);
+	verificaERR_DECLARED(lista_tabelas,$2);
+	insereEntradaTabela(&(lista_tabelas->tabela_simbolos), $2);
      
      }
 ;
@@ -201,14 +201,9 @@ params_list: param ';' params_list { $$ = $1; adicionaNodo($$, $3);}//parametros
 param: type ident_param {$$=NULL;}//parametros nao criam nodos nem sao filhos
      ;
 ident_param: TK_IDENTIFICADOR {
-     $$ = criaNodo($2); 
-	tipo_atual = verificaTipo($1->valor_token);
-	$2->tipo_token = tipo_atual;
-	$2->natureza_token = VARIABLE;
-	$2->tamanho_token = infereTamanho(tipo_atual);	
-	verificaERR_DECLARED(lista_tabelas,$2);
-	insereUltimaTabela(&lista_tabelas, $2);
+     $$ = criaNodo($1); 
      }
+     ;
 
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block      
@@ -292,6 +287,11 @@ simple_command: command_block      {$$ = $1;}
      | cflow                       {$$ = $1;}
      ;
 decl_local: tipo_local id_list {$$=$2;};
+
+tipo_local: TK_PR_INT    {$$ = NULL;}       
+     | TK_PR_FLOAT {$$ = NULL;}         
+     | TK_PR_BOOL  {$$ = NULL;} 
+     ; 
 
 id_list: id_local {$$=$1;};
 id_list:id_local ',' id_list
