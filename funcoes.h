@@ -83,12 +83,12 @@ typedef struct
 	
 	Codigo *codigo;
 	
-} ValorLexico;
+} Valor_Lexico;
 
 /* Estrutura responsavel por representar um nodo da AST, com suas informacoes e seus filhos. */
 typedef struct nodo
 {
-	ValorLexico *info;
+	Valor_Lexico *info;
 	struct nodo** filho;
 	int numeroFilhos;
   
@@ -97,7 +97,7 @@ typedef struct nodo
 /* Estrutura representando cada entrada de uma tabela, implementada como uma lista simplesmente encadeada. */
 typedef struct tabela
 {
-	ValorLexico *info;
+	Valor_Lexico *info;
 	struct tabela *proximo;
 
 } Tabela;
@@ -114,7 +114,7 @@ typedef struct lista_tabelas
 
 /* Funcoes para manipulacoes da arvore de sintaxe abstrata. */
 
-Nodo* criaNodo(ValorLexico* info);
+Nodo* criaNodo(Valor_Lexico* info);
 void adicionaNodo(Nodo* pai, Nodo* filho);
 void removeNodo(Nodo* node);
 
@@ -125,8 +125,8 @@ void concatenate_list(Nodo* list1, Nodo* list2);
 
 /* Funcoes para manipulacoes da tabela de simbolos. */
 
-void insereEntradaTabela (Tabela** tabela, ValorLexico *valor_lexico);
-void insereUltimaTabela(Lista_tabelas** lista_tabelas, ValorLexico* valor_lexico);
+void insereEntradaTabela (Tabela** tabela, Valor_Lexico *valor_lexico);
+void insereUltimaTabela(Lista_tabelas** lista_tabelas, Valor_Lexico* valor_lexico);
 void popTabela(Lista_tabelas **lista);
 void pushTabela(Lista_tabelas** lista, Tabela *nova_tabela);
 void destroiTabela(Tabela** tabela);
@@ -136,13 +136,13 @@ void imprimeUltimaTabela(Lista_tabelas* lista_tabelas);
 
 /* Funcoes para analises semanticas e verificacao de erros. */
 
-void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, ValorLexico* identificador);
-void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, ValorLexico* identificador);
+void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, Valor_Lexico* identificador);
+void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, Valor_Lexico* identificador);
 void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Lista_tabelas *lista_tabelas, char *valor_token, int linha_token);
 int infereTipo(int tipo1, int tipo2);
 int verificaTipo(char *tipo_token);
 int infereTipoExpressao(Nodo *raiz);
-int obtemTipo(Lista_tabelas *lista_tabelas, ValorLexico* identificador);
+int obtemTipo(Lista_tabelas *lista_tabelas, Valor_Lexico* identificador);
 int infereTamanho(int tipo_token);
 char* obtemNomeFuncao(char* nomeChamadaFuncao);
 

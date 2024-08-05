@@ -15,7 +15,7 @@ char* concat_call(char* s1)
 }
 
 /* Recebe informacoes a respeito de um novo nodo a ser inserido na arvore, instancia e retorna o nodo. */
-Nodo* criaNodo(ValorLexico *info) 
+Nodo* criaNodo(Valor_Lexico *info) 
 {
     Nodo* novoNodo = (Nodo*)malloc(sizeof(Nodo));
     novoNodo->info = info;
