@@ -2,7 +2,7 @@
 #define ARVORE_H
 
 #include <stdio.h>
-#include "valor_lexico.h"
+#include "funcoes.h"
 
 typedef struct NODO
 {

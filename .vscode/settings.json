@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "pilha_tabelas.h": "c"
+        "pilha_tabelas.h": "c",
+        "funcoes.h": "c"
     }
 }

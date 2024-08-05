@@ -20,7 +20,6 @@ extern int tipo_atual;
 // %code requires
 // {
 //     #include "arvore.h"   
-//     #include "valor_lexico.h"
 //     #include "funcoes.h"
 // }
 
@@ -104,6 +103,8 @@ extern int tipo_atual;
 %type<nodo> params_list_void
 %type<nodo> cflow
 %type<nodo> else_command
+%type<nodo> tipo_local
+%type<valor_lexico> push_tabela_escopo
 
 
 %%
@@ -209,10 +210,10 @@ ident_param: TK_IDENTIFICADOR {
 body: command_block      
                          {
      $$ = criaNodo($1);
-	if($8 != NULL)
+	if($1 != NULL)
 	{
-		adicionaNodo($$, $8);
-		$$->info->codigo = $8->info->codigo;
+		adicionaNodo($$, $1);
+		$$->info->codigo = $1->info->codigo;
 	}
 }
      ;
