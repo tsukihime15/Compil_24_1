@@ -2,7 +2,6 @@
 /* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe - 00219819 */
 #include <stdio.h>
 #include "arvore.h"
-#include "pilha_tabelas.h"
 #include "tabela_simbolo.h"
 
 int yylex(void);
@@ -10,16 +9,17 @@ int yyparse(void);
 extern void yyerror (char const *mensagem);
 
 extern void* arvore;
-PilhaTabelaSimbolos *pilha_de_tabelas;
-TabelaSimbolos *tabela_global;
-TabelaSimbolos *tabela_escopo;
+
+extern Lista_tabelas *lista_tabelas;
+extern Tabela *tabela_global;
+extern Tabela *tabela_escopo;
 
 %}
 
 // %code requires
 // {
 //     #include "arvore.h"
-//      #include "pilha_tabelas.h"
+//      #include "tabela_simbolo.h"
 // }
 
 %union
@@ -64,16 +64,18 @@ TabelaSimbolos *tabela_escopo;
 %token<valor_lexico> '('
 
 %type<nodo> programa
-%type<nodo> raiz
+
 %type<nodo> program_list
 %type<nodo> element
-%type<nodo> ident
+%type<nodo> ident_decl
+%type<nodo> ident_func
 %type<nodo> ident_param
 %type<nodo> func
 %type<nodo> type
 %type<nodo> decl_global
 %type<nodo> decl_local
-%type<nodo> id_list
+%type<nodo> id_list_gl
+%type<nodo> id_list_lc
 %type<nodo> header
 %type<nodo> body
 %type<nodo> command_block
@@ -105,15 +107,10 @@ TabelaSimbolos *tabela_escopo;
 %%
 
 // Símbolo inicial
-raiz: cria_pilha
-      empilha_tabela_escopo 
-      programa
-      desempilha_tabela_escopo 
-      limpa_pilha                { $$ = $3; arvore = $$; tabela_global = tabela_escopo;}
-;
-programa: program_list               {$$ = $1; arvore = $$;}
-;                      
-programa:                            {$$ = NULL; arvore = NULL; }
+raiz: {pushTabela(&lista_tabelas, tabela_global);} 
+     programa;
+programa: program_list   {$$ = $1; arvore = $$; popTabela(&lista_tabelas);}
+     |                   {$$ = NULL; arvore = NULL; }
 ;
 
 program_list: element program_list { if($1 == NULL) 
@@ -127,29 +124,23 @@ program_list: element program_list { if($1 == NULL)
                                         
                                         }
 }
-                | element {$$=$1;} 
+          | element {$$=$1;} 
 
 ;
 element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
 
         | func {$$ = $1;}
 ;
-ident: TK_IDENTIFICADOR  {$$ = createNodo($1); printf("Criou nó\n");
-char* novo_lexema = strdup($$->valor_lexico.valor);  printf("Fez strdup\n");
-verificarDeclaracao(pilha_de_tabelas,novo_lexema); printf("Verificou declaracao\n");
-EntradaTabelaSimbolos* entrada = criaEntradaTabelaSimbolos($1); printf("Criou entrada na tabela\n");
-declararIdentificador(pilha_de_tabelas, $$->valor_lexico.valor, *entrada, $$->valor_lexico.num_linha); printf("Declarou identificador\n");
-};
+ident_decl: TK_IDENTIFICADOR  {$$ = createNodo($1); printf("Criou nó\n");};
+
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
-decl_global: type id_list ','             {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
+decl_global: type id_list_gl ','             {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
 ;
-//Declaração de variáveis locais
-decl_local: type id_list                 {$$ = NULL;} 
-;
+
 // Lista de identificadores
-id_list: id_list ';' ident    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
-     | ident                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
+id_list_gl: id_list_gl ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
+     | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
      ;
 // Tipos
 type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos        
@@ -158,32 +149,45 @@ type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos
      ;
 // Função => cabeçalho e corpo
 // OBS: >>CABEÇALHOS<< FICAM NO ESCOPO GLOBAL
-func: empilha_tabela_escopo header body desempilha_tabela_escopo {$$ = $2;
-                                                                 addFilho($$,$3);}
+func: header body {$$ = $2;
+                    if($2 != NULL)
+                         addFilho($$,$2);
+                   }
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '(' params_list_void ')' TK_OC_OR type '/' ident   {$$ = $7;}
+header: '(' push_tabela_escopo params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $8;}
 ;
+ident_func: TK_IDENTIFICADOR 
+     {
+          $1->tipo = INT; /*Por convenção, todas as var são int */
+          $1->natureza = FUNCTION;
+          $$ = createNodo($1);
+
+          verificaERR_DECLARED(lista_tabelas,$1);
+	     insereEntradaTabela(&(lista_tabelas->tabela_simbolos), $1);
+          
+     }
+     ;
 
 // Params: Tipo e lista de parâmetros
-params_list_void: params_list {$$ = NULL;} //parametros nao criam nodos nem sao filhos
+params_list_void: params_list {$$ = NULL;} //nada nessa etapa
      | {$$=NULL;}                       
      ;
-params_list: param ';' params_list {$$=NULL;}//parametros nao criam nodos nem sao filhos
+params_list: param ';' params_list {$$=NULL;}//nada nessa etapa
     | param {$$=NULL;}
      ;
-param: type ident_param {$$=NULL;}//parametros nao criam nodos nem sao filhos
+param: type ident_param {$$=NULL;}//nada nessa etapa
      ;
-ident_param: TK_IDENTIFICADOR {$$=NULL;}//parametros nao criam nodos nem sao filhos
+ident_param: TK_IDENTIFICADOR {$$=NULL;}//nada nessa etapa
 ;
+
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
 body: command_block                               {$$ = $1;}
      ;
 // Aceita bloco com comando vazio 
 command_block: '{''}'                         {$$ = NULL;}
+     | '{' push_tabela_escopo command_list '}'           {$$ = $3;}
      ;
-command_block: '{' command_list '}'           {$$ = $2;}
-;
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}
                                      else
@@ -196,6 +200,10 @@ command_list: simple_command ',' command_list {if($1 == NULL)
                                         }    }
      | simple_command ','                         {$$ = $1;}
      ;
+
+push_tabela_escopo:      {pushTabela(&lista_tabelas, tabela_escopo);}
+     ;
+
 simple_command: command_block      {$$ = $1;}
      | decl_local                  {$$ = $1;}
      | atr                         {$$ = $1;}
@@ -203,16 +211,22 @@ simple_command: command_block      {$$ = $1;}
      | return                      {$$ = $1;}
      | cflow                       {$$ = $1;}
      ;
+
+//Declaração de variáveis locais
+decl_local: type id_list_lc                 {$$ = NULL;} 
+     ;
+id_list_lc: id_list_lc ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
+     | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
+     ;
+
 // Chamada de Atribuição
 atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
-                                    verificarUsoIdentificador(pilha_de_tabelas, $1.valor, $1.num_linha, IDENTIFICADOR);
                                     addFilho($$, createNodo($1));
                                     addFilho($$, $3);
                                    }
      ;
 // Chamada de Função
 fcall: TK_IDENTIFICADOR '(' args_list ')'   {$$ = createFcallNodo($1);
-                                            verificarUsoIdentificador(pilha_de_tabelas, $1.valor, $1.num_linha, FUNCAO);
                                             addFilho($$,$3);
                                              }
      ;
@@ -241,15 +255,6 @@ cflow: TK_PR_IF '(' expr ')' command_block else_command   {$$ = createNodo($1);
 else_command: TK_PR_ELSE command_block                      {$$ = $2;}
      |                                                      {$$ = NULL;}
      ;
-
-cria_pilha: { pilha_de_tabelas = criarPilha(); printf("Pilha criada\n"); };
-empilha_tabela_escopo: /* Vazio */ { 
-    tabela_escopo = criarTabelaSimbolos(); printf("Escopo criado\n");
-    empilhar(&pilha_de_tabelas, tabela_escopo); printf("Tabela de escopo empilhada\n");
-    }; 
-desempilha_tabela_escopo: { desempilhar(&pilha_de_tabelas); printf("Tabela de escopo desempilhada\n"); };
-limpa_pilha: { limparPilha(pilha_de_tabelas); printf("Pilha limpa\n");};
-
 
 //Expressao
 expr: expr8                   {$$ = $1;}

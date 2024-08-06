@@ -6,32 +6,43 @@
 #include <stdlib.h>
 #include "valor_lexico.h"
 
-#define FUNCAO 1
-#define IDENTIFICADOR 2
+// Códigos de erro
+#define ERR_UNDECLARED 10
+#define ERR_DECLARED 11 
+#define ERR_VARIABLE 20 
+#define ERR_FUNCTION 21
 
-typedef struct {
-    int linha;
-    int natureza;
-    char* tipo;
-    struct EntradaTabelaSimbolos *proximo;
-} EntradaTabelaSimbolos;
+typedef struct tabela
+{
+	VALOR_LEXICO *info;
+	struct tabela *proximo;
 
-typedef struct Simbolo {
-    char* lexema;
-    EntradaTabelaSimbolos *entrada;
-} Simbolo;
+} Tabela;
 
-typedef struct {
-    Simbolo **simbolos;
-    struct TabelaSimbolos* pai;
-    struct TabelaSimbolos* proximo;
-} TabelaSimbolos;
+typedef struct lista_tabelas
+{
+	struct lista_tabelas *proximo;
+	struct lista_tabelas *anterior;
+	Tabela *tabela_simbolos;
 
+} Lista_tabelas;
 
-TabelaSimbolos* criarTabelaSimbolos();
-Simbolo* criarSimbolo(char* lexema, EntradaTabelaSimbolos entrada);
-EntradaTabelaSimbolos* criaEntradaTabelaSimbolos(VALOR_LEXICO valor_lexico);
-void inserirSimbolo(TabelaSimbolos* tabela,char* lexema, EntradaTabelaSimbolos entrada);
-Simbolo* buscarSimbolo(TabelaSimbolos* tabela, char* lexema);
-void liberarTabelaSimbolos(TabelaSimbolos* tabela);
+void insereEntradaTabela (Tabela** tabela, VALOR_LEXICO valor_lexico);
+void insereUltimaTabela(Lista_tabelas** lista_tabelas, VALOR_LEXICO* valor_lexico);
+void popTabela(Lista_tabelas **lista);
+void pushTabela(Lista_tabelas** lista, Tabela *nova_tabela);
+void destroiTabela(Tabela** tabela);
+void destroiListaTabelas(Lista_tabelas** lista_tabelas);
+void imprimeTabela(Tabela *tabela);
+void imprimeUltimaTabela(Lista_tabelas* lista_tabelas);
+
+void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador);
+void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador);
+void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Lista_tabelas *lista_tabelas, char *valor_token, int linha_token);
+int infereTipo(int tipo1, int tipo2);
+int verificaTipo(char *tipo_token);
+int infereTipoExpressao(NODO *raiz);
+int obtemTipo(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador);
+int infereTamanho(int tipo_token);
+char* obtemNomeFuncao(char* nomeChamadaFuncao);
 #endif

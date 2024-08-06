@@ -2,7 +2,6 @@
 /* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe - 00219819 */
 #include <stdio.h>
 #include "arvore.h"
-#include "pilha_tabelas.h"
 #include "parser.tab.h"
 
 
@@ -16,21 +15,21 @@ numero    [0-9]
 id        [a-z_][a-z_0-9]*
 %%
 
-"int"             {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INTEIRO, yylineno); return TK_PR_INT;}
+"int"             {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INT, yylineno); return TK_PR_INT;}
 "float"           {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, FLOAT, yylineno); return TK_PR_FLOAT;}
-"bool"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOLEANO, yylineno); return TK_PR_BOOL;}
+"bool"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOL, yylineno); return TK_PR_BOOL;}
 "if"              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_IF;}
 "else"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_ELSE;}
 "while"           {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_WHILE;}
 "return"          {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_RETURN;}
 
-"false"           {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOLEANO, yylineno); return TK_LIT_FALSE;}
-"true"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOLEANO, yylineno); return TK_LIT_TRUE;}
+"false"           {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOL, yylineno); return TK_LIT_FALSE;}
+"true"            {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOL, yylineno); return TK_LIT_TRUE;}
 
 {id}              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_IDENTIFICADOR;}  
 
 {numero}*"."{numero}+    {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, FLOAT, yylineno); return TK_LIT_FLOAT;}
-{numero}+                {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INTEIRO, yylineno); return TK_LIT_INT;}
+{numero}+                {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INT, yylineno); return TK_LIT_INT;}
 
 "<="              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_LE;}
 ">="              {yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_GE;}

@@ -4,30 +4,34 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef enum TIPO_TOKEN
-{
-    FLOAT,
-    INTEIRO,
-    BOOLEANO,
-    SEM_TIPO
-} TIPO_TOKEN;
+/*Constante para definir o tipo de um token*/
+#define INT 0
+#define FLOAT 1
+#define BOOL 2
+#define SEM_TIPO 3
 
-typedef enum NATUREZA
-{
-    ID,
-    FUNC,
-    SEM_NATUREZA
-} NATUREZA;
+/* Constantes para definir a natureza de um token */
+#define LITERAL 0
+#define VARIABLE 1
+#define EXPRESSION_OPERATOR 2
+#define LANGUAGE_OPERATOR 3
+#define CONTROL 4
+#define TYPE 5
+#define SYNTAX_TOKEN 6
+#define FUNCTION_CALL 7
+#define FUNCTION 8
+#define SEM_NATUREZA 9
 
 typedef struct VALOR_LEXICO
 {
     int num_linha;
-    NATUREZA natu;
-    TIPO_TOKEN tipo;
+    int tipo;    
+    int natureza;
+
     char* valor;
 } VALOR_LEXICO;
 
-VALOR_LEXICO createValorLexico(char* valor, NATUREZA natu, TIPO_TOKEN tipo, int num_linha);
+VALOR_LEXICO createValorLexico(char* valor, int natu, int tipo, int num_linha);
 void freeValorLexico(VALOR_LEXICO valor_lexico);
 
 #endif

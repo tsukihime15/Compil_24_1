@@ -1,10 +1,10 @@
 #include "valor_lexico.h"
 
-VALOR_LEXICO createValorLexico(char* valor, NATUREZA natu, TIPO_TOKEN tipo, int num_linha)
+VALOR_LEXICO createValorLexico(char* valor, int natureza, int tipo, int num_linha)
 {
     VALOR_LEXICO valor_lexico;
     valor_lexico.num_linha = num_linha;
-    valor_lexico.natu = natu;
+    valor_lexico.natureza = natureza;
     valor_lexico.tipo = tipo;
     valor_lexico.valor = strdup(valor);
 
