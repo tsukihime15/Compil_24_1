@@ -24,7 +24,7 @@ extern Tabela *tabela_escopo;
 
 %union
 {
-    VALOR_LEXICO valor_lexico;
+    VALOR_LEXICO* valor_lexico;
     struct NODO* nodo;
 }
 

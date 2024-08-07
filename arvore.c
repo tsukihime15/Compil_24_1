@@ -1,6 +1,6 @@
 #include "arvore.h"
 
-NODO* createNodo(VALOR_LEXICO valor_lexico)
+NODO* createNodo(VALOR_LEXICO* valor_lexico)
 {
     NODO* nodo = malloc(sizeof(NODO));
 
@@ -12,15 +12,15 @@ NODO* createNodo(VALOR_LEXICO valor_lexico)
     return nodo;
 }
 
-NODO* createFcallNodo(VALOR_LEXICO valor_lexico)
+NODO* createFcallNodo(VALOR_LEXICO* valor_lexico)
 {
  
     NODO* nodo = createNodo(valor_lexico);
-    char* novo_valor = malloc(strlen("call ") + strlen(nodo->valor_lexico.valor) + 1);
+    char* novo_valor = malloc(strlen("call ") + strlen(nodo->valor_lexico->valor) + 1);
     char* call_string = "call ";
     strcpy(novo_valor, call_string);
-    strcat(novo_valor, nodo->valor_lexico.valor);
-    nodo->valor_lexico.valor = novo_valor;
+    strcat(novo_valor, nodo->valor_lexico->valor);
+    nodo->valor_lexico->valor = novo_valor;
     
     return nodo;
 }
@@ -81,7 +81,7 @@ void exporta(NODO* nodo)
 
 void printValorLexico(NODO* nodo)
 {
-    printf("%p [label=\"%s\"];\n", nodo, nodo->valor_lexico.valor);
+    printf("%p [label=\"%s\"];\n", nodo, nodo->valor_lexico->valor);
     if (nodo->filho)
     {
         printValorLexico(nodo->filho);

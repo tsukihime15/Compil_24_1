@@ -6,14 +6,14 @@
 
 typedef struct NODO
 {
-    VALOR_LEXICO valor_lexico;
+    VALOR_LEXICO* valor_lexico;
     struct NODO* pai;
     struct NODO* irmao;
     struct NODO* filho;
 } NODO;
 
-NODO* createNodo(VALOR_LEXICO valor_lexico);
-NODO* createFcallNodo(VALOR_LEXICO valor_lexico);
+NODO* createNodo(VALOR_LEXICO* valor_lexico);
+NODO* createFcallNodo(VALOR_LEXICO* valor_lexico);
 void addFilho(NODO* pai, NODO* filho);
 NODO* getUltimoFilho(NODO* pai);
 void removeNodo(NODO* node);

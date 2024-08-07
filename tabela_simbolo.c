@@ -5,16 +5,15 @@
 #include "valor_lexico.h"
 
 /* Recebe uma tabela de simbolos e uma entrada, e insere as informacoes da entrada na tabela. */
-void insereEntradaTabela(Tabela** tabela, ValorLexico* valor_lexico)
+void insereEntradaTabela(Tabela** tabela, VALOR_LEXICO* valor_lexico)
 {
     Tabela* novo = (Tabela*)malloc(sizeof(Tabela));
-    novo->info = (ValorLexico*)malloc(sizeof(ValorLexico));
+    novo->info = (VALOR_LEXICO*)malloc(sizeof(VALOR_LEXICO));
 
-    novo->info->valor_token = strdup(valor_lexico->valor_token);
-    novo->info->linha_token = valor_lexico->linha_token;
-    novo->info->natureza_token = valor_lexico->natureza_token;
-    novo->info->tipo_token = valor_lexico->tipo_token;
-    novo->info->tamanho_token = valor_lexico->tamanho_token;
+    novo->info->valor = strdup(valor_lexico->valor);
+    novo->info->num_linha = valor_lexico->num_linha;
+    novo->info->natureza = valor_lexico->natureza;
+    novo->info->tipo = valor_lexico->tipo;
 
     novo->proximo = NULL;
 
@@ -30,7 +29,7 @@ void insereEntradaTabela(Tabela** tabela, ValorLexico* valor_lexico)
 }
 
 /* Recebe uma lista de tabela de simbolos e uma entrada, e insere a entrada na ultima tabela de simbolos da lista. */
-void insereUltimaTabela(Lista_tabelas** lista_tabelas, ValorLexico* valor_lexico) 
+void insereUltimaTabela(Lista_tabelas** lista_tabelas, VALOR_LEXICO* valor_lexico) 
 {   
     if (*lista_tabelas == NULL || valor_lexico == NULL) {
         return;
@@ -102,7 +101,7 @@ void destroiTabela(Tabela** tabela)
     while (atual != NULL) 
     {
         proximo = atual->proximo;
-        free(atual->info->valor_token);
+        free(atual->info->valor);
         free(atual->info);
         free(atual);
         atual = proximo;
@@ -131,7 +130,7 @@ void destroiListaTabelas(Lista_tabelas** lista_tabelas)
 /* Verifica os seguintes erros de semantica:
 ERR_UNDECLARED - Caso o identificador não tenha sido declarado no seu uso;
 ERR_FUNCTION   - Caso o identificador dito como funcao esteja sendo usado como variavel. */
-void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, ValorLexico* identificador)
+void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador)
 {
     Lista_tabelas *lista_atual = lista_tabelas;
     int achou_funcao = 0;
@@ -142,12 +141,12 @@ void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, ValorLexico* 
 
 	while (tabela_atual != NULL)
 	{
-	    if (strcmp(identificador->valor_token, tabela_atual->info->valor_token) == 0)
+	    if (strcmp(identificador->valor, tabela_atual->info->valor) == 0)
 	    {
-	    	if (tabela_atual->info->natureza_token == FUNCTION)
+	    	if (tabela_atual->info->natureza == FUNCTION)
 			achou_funcao = 1;
 	    	
-	    	else if (tabela_atual->info->natureza_token == VARIABLE)
+	    	else if (tabela_atual->info->natureza == VARIABLE)
 			return;	
 	    }
 	        
@@ -159,13 +158,13 @@ void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, ValorLexico* 
     
     if (achou_funcao == 1)
     {
-	printf("ERRO DE SEMANTICA - LINHA %d - FUNCAO '%s' SENDO USADA COMO VARIAVEL\n", identificador->linha_token, identificador->valor_token);
+	printf("ERRO DE SEMANTICA - LINHA %d - FUNCAO '%s' SENDO USADA COMO VARIAVEL\n", identificador->num_linha, identificador->valor);
 	exit(ERR_FUNCTION);   
     }
     
     else
     {
-	printf("ERRO DE SEMANTICA - LINHA %d - IDENTIFICADOR '%s' NAO DECLARADO\n", identificador->linha_token, identificador->valor_token);
+	printf("ERRO DE SEMANTICA - LINHA %d - IDENTIFICADOR '%s' NAO DECLARADO\n", identificador->num_linha, identificador->valor);
 	exit(ERR_UNDECLARED);   
     }
 }
@@ -173,7 +172,7 @@ void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, ValorLexico* 
 /* Verifica os seguintes erros de semantica, nos casos de uma chama de funcao no codigo sendo analisado:
 ERR_VARIABLE   - Caso o identificador dito como variavel esteja sendo usado como funcao.
 ERR_UNDECLARED - Caso o identificador não tenha sido declarado no seu uso; */
-void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Lista_tabelas *lista_tabelas, char *valor_token, int linha_token)
+void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Lista_tabelas *lista_tabelas, char *valor, int num_linha)
 {
 	Lista_tabelas *lista_atual = lista_tabelas;
 
@@ -183,11 +182,11 @@ void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Lista_tabelas *lista_tabelas,
 
 		while (tabela_atual != NULL)
 		{
-		    if (strcmp(valor_token, tabela_atual->info->valor_token) == 0)
+		    if (strcmp(valor, tabela_atual->info->valor) == 0)
 		    {
-		   	if (tabela_atual->info->natureza_token != FUNCTION)
+		   	if (tabela_atual->info->natureza != FUNCTION)
 		   	{
-		   		printf("ERRO DE SEMANTICA - LINHA %d - VARIAVEL '%s' SENDO USADA COMO FUNCAO\n", linha_token, valor_token);
+		   		printf("ERRO DE SEMANTICA - LINHA %d - VARIAVEL '%s' SENDO USADA COMO FUNCAO\n", num_linha, valor);
 		   		exit(ERR_VARIABLE);
 		   	}     	
 		    }
@@ -198,17 +197,17 @@ void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Lista_tabelas *lista_tabelas,
         	lista_atual = lista_atual->proximo;
     	}
     
-	printf("ERRO DE SEMANTICA - LINHA %d - IDENTIFICADOR '%s' NAO DECLARADO\n", linha_token, valor_token);
+	printf("ERRO DE SEMANTICA - LINHA %d - IDENTIFICADOR '%s' NAO DECLARADO\n", num_linha, valor);
 	exit(ERR_UNDECLARED);	
 }
 
 /* Verifica o seguinte erro de semantica:
 ERR_DECLARED - Nos casos em que um identificador ja declarado esteja sendo redeclarado. */
-void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, ValorLexico* identificador)
+void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador)
 {
 	Lista_tabelas *lista_atual = lista_tabelas;
 	
-	if (identificador->natureza_token != FUNCTION)
+	if (identificador->natureza != FUNCTION)
 		while (lista_atual->proximo != NULL)
 			lista_atual = lista_atual->proximo;
 
@@ -218,9 +217,10 @@ void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, ValorLexico* identificad
 	while (tabela_atual != NULL)
 	{
 
-		if (strcmp(identificador->valor_token, tabela_atual->info->valor_token) == 0)
+		if (strcmp(identificador->valor, tabela_atual->info->valor) == 0)
 		{
-			printf("ERRO DE SEMANTICA - LINHA %d - REDECLARACAO DO IDENTIFICADOR '%s'\n", identificador->linha_token, identificador->valor_token);
+			printf("ERRO DE SEMANTICA - LINHA %d - REDECLARACAO DO IDENTIFICADOR '%s'\n", identificador->num_linha
+    , identificador->valor);
 			exit(ERR_DECLARED);
 		}
 
@@ -230,27 +230,6 @@ void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, ValorLexico* identificad
 	return;
 }
 
-/* Recebe um valor inteiro referente a um tipo, e retorna uma string indicando o tipo. */
-char* obtemNomeTipo (int valor_tipo)
-{
-	char* nome_tipo = calloc(MAXIMO_CARACTERES_TIPO, sizeof(char));
-	if (valor_tipo == INT)
-		strcpy(nome_tipo,"int");
-	else if (valor_tipo == FLOAT)
-		strcpy(nome_tipo,"float");
-	else if (valor_tipo == BOOL)
-		strcpy(nome_tipo,"bool");
-	return nome_tipo;
-}
-
-/* Recebe uma string qualificando uma chamada de funcao com "call " concatenado, e obtem o nome da funcao sendo chamada. */
-char* obtemNomeFuncao(char* nomeChamadaFuncao)
-{
-	char *nomeFuncao = calloc(MAXIMO_CARACTERES_NOME,sizeof(char));
-	strcpy(nomeFuncao,nomeChamadaFuncao+5);
-	return nomeFuncao;
-}
-
 /* Recebe uma tabela de simbolos, e imprime cada simbolo com suas caracteristicas. */
 void imprimeTabela(Tabela *tabela)
 {
@@ -258,11 +237,11 @@ void imprimeTabela(Tabela *tabela)
 
 	while (atual != NULL) 
 	{
-		printf("VALOR: %s\n", atual->info->valor_token);
-		printf("TIPO: %s\n", obtemNomeTipo(atual->info->tipo_token));
-		printf("NATUREZA: %d\n", atual->info->natureza_token);
-		printf("LINHA: %d\n", atual->info->linha_token);
-		printf("TAMANHO: %d\n\n", atual->info->tamanho_token);
+		printf("VALOR: %s\n", atual->info->valor);
+		printf("TIPO: %d\n", atual->info->tipo);
+		printf("NATUREZA: %d\n", atual->info->natureza);
+		printf("LINHA: %d\n", atual->info->num_linha);
+
 		atual = atual->proximo;
 	}
 }
@@ -304,21 +283,15 @@ int infereTipo(int tipo1, int tipo2)
 		return -1;	
 }
 
-/* Recebe um nodo raiz de uma expressao, e decide qual sera o tipo do nodo, a partir
+/* Recebe um NODO raiz de uma expressao, e decide qual sera o tipo do NODO, a partir
 da inferencia de tipos aplicada na expressao. */
-int infereTipoExpressao(Nodo *raiz) 
+int infereTipoExpressao(NODO *raiz) 
 {
     int tipo_encontrado = -1;
     
     if (raiz != NULL) 
     {
-        //printf("ACHOU %d\n", raiz->info->tipo_token);
-        
-        // Atualiza o tipo encontrado com o tipo do nodo atual
-        tipo_encontrado = raiz->info->tipo_token;
-        
-        for (int i = 0; i < raiz->numeroFilhos; i++) 
-            tipo_encontrado = infereTipo(tipo_encontrado, infereTipoExpressao(raiz->filho[i]));
+        tipo_encontrado = infereTipo(raiz->filho->valor_lexico->tipo,raiz->filho->irmao->valor_lexico->tipo);
     }
     
     return tipo_encontrado;
@@ -326,20 +299,20 @@ int infereTipoExpressao(Nodo *raiz)
 
 /* Recebe uma string representando um tipo, e retorna o valor inteiro que
 corresponde a esse tipo. */
-int verificaTipo(char *tipo_token)
+int verificaTipo(char *tipo)
 {
-	if (strcmp(tipo_token,"int") == 0)
+	if (strcmp(tipo,"int") == 0)
 		return INT;
-	else if (strcmp(tipo_token,"float") == 0)
+	else if (strcmp(tipo,"float") == 0)
 		return FLOAT;
-	else if (strcmp(tipo_token,"bool") == 0)
+	else if (strcmp(tipo,"bool") == 0)
 		return BOOL;
 	else
 		return -1;
 }
 
 /* Recebe um identificador, e obtem seu tipo, que esta informado na ultima tabela de simbolos inserida. */
-int obtemTipo(Lista_tabelas *lista_tabelas, ValorLexico* identificador)
+int obtemTipo(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador)
 {
     Lista_tabelas *lista_atual = lista_tabelas;
     int tipo_atual = -1;
@@ -350,8 +323,8 @@ int obtemTipo(Lista_tabelas *lista_tabelas, ValorLexico* identificador)
 
         while (tabela_atual != NULL)
         {
-            if (strcmp(identificador->valor_token, tabela_atual->info->valor_token) == 0)
-		tipo_atual = tabela_atual->info->tipo_token; 
+            if (strcmp(identificador->valor, tabela_atual->info->valor) == 0)
+		tipo_atual = tabela_atual->info->tipo; 
             tabela_atual = tabela_atual->proximo;
         }
 
@@ -361,9 +334,9 @@ int obtemTipo(Lista_tabelas *lista_tabelas, ValorLexico* identificador)
     return tipo_atual;	
 }
 
-/* Recebe duas listas de nos da AST, e concatena as duas. */
-void concatenate_list(Nodo* list1, Nodo* list2)
+/* Recebe duas listas de nos da AST, e concatena as duas. 
+void concatenate_list(NODO* list1, NODO* list2)
 {
-    Nodo* last_node_from_list = get_last_valid_node_from_list(list1);
-    adicionaNodo(last_node_from_list, list2);
-}
+    NODO* last_node_from_list = get_last_valid_node_from_list(list1);
+    adicionaNODO(last_node_from_list, list2);
+}*/

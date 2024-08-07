@@ -31,7 +31,7 @@ typedef struct VALOR_LEXICO
     char* valor;
 } VALOR_LEXICO;
 
-VALOR_LEXICO createValorLexico(char* valor, int natu, int tipo, int num_linha);
-void freeValorLexico(VALOR_LEXICO valor_lexico);
+VALOR_LEXICO* createValorLexico(char* valor, int natu, int tipo, int num_linha);
+void freeValorLexico(VALOR_LEXICO* valor_lexico);
 
 #endif

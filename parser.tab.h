@@ -83,7 +83,7 @@ union YYSTYPE
 {
 #line 26 "parser.y"
 
-    VALOR_LEXICO valor_lexico;
+    VALOR_LEXICO* valor_lexico;
     struct NODO* nodo;
 
 #line 90 "parser.tab.h"

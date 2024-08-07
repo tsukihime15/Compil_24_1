@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "valor_lexico.h"
+#include "arvore.h"
 
 // Códigos de erro
 #define ERR_UNDECLARED 10
@@ -27,7 +28,7 @@ typedef struct lista_tabelas
 
 } Lista_tabelas;
 
-void insereEntradaTabela (Tabela** tabela, VALOR_LEXICO valor_lexico);
+void insereEntradaTabela (Tabela** tabela, VALOR_LEXICO* valor_lexico);
 void insereUltimaTabela(Lista_tabelas** lista_tabelas, VALOR_LEXICO* valor_lexico);
 void popTabela(Lista_tabelas **lista);
 void pushTabela(Lista_tabelas** lista, Tabela *nova_tabela);
@@ -40,9 +41,7 @@ void verificaERR_UNDECLARED_FUNCTION(Lista_tabelas *lista_tabelas, VALOR_LEXICO*
 void verificaERR_DECLARED(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador);
 void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Lista_tabelas *lista_tabelas, char *valor_token, int linha_token);
 int infereTipo(int tipo1, int tipo2);
-int verificaTipo(char *tipo_token);
 int infereTipoExpressao(NODO *raiz);
+int verificaTipo(char *tipo);
 int obtemTipo(Lista_tabelas *lista_tabelas, VALOR_LEXICO* identificador);
-int infereTamanho(int tipo_token);
-char* obtemNomeFuncao(char* nomeChamadaFuncao);
 #endif

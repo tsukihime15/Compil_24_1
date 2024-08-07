@@ -814,147 +814,241 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 18 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INT, yylineno); return TK_PR_INT;}
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+	                return TK_PR_INT;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 19 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, FLOAT, yylineno); return TK_PR_FLOAT;}
+#line 25 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA; 
+                  return TK_PR_FLOAT;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 20 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOL, yylineno); return TK_PR_BOOL;}
+#line 32 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_PR_BOOL;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 21 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_IF;}
+#line 39 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_PR_IF;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 22 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_ELSE;}
+#line 46 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_PR_ELSE;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 23 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_WHILE;}
+#line 53 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_PR_WHILE;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 24 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_PR_RETURN;}
+#line 60 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_PR_RETURN;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 26 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOL, yylineno); return TK_LIT_FALSE;}
+#line 67 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = BOOL;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_LIT_FALSE;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 27 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, BOOL, yylineno); return TK_LIT_TRUE;}
+#line 74 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = BOOL;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_LIT_TRUE;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 29 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_IDENTIFICADOR;}  
+#line 81 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_IDENTIFICADOR;}  
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 31 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, FLOAT, yylineno); return TK_LIT_FLOAT;}
+#line 88 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                          yylval.valor_lexico->num_linha = yylineno;
+	                        yylval.valor_lexico->tipo = FLOAT;
+	                        yylval.valor_lexico->valor = strdup(yytext);
+	                        yylval.valor_lexico->natureza = SEM_NATUREZA;
+                          return TK_LIT_FLOAT;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 32 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, INT, yylineno); return TK_LIT_INT;}
+#line 95 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = INT;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;return TK_LIT_INT;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 34 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_LE;}
+#line 101 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_OC_LE;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 35 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_GE;}
+#line 108 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_OC_GE;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 36 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_EQ;}
+#line 115 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_OC_EQ;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 37 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_NE;}
+#line 122 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_OC_NE;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 38 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_AND;}
+#line 129 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_OC_AND;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 39 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return TK_OC_OR;}
+#line 136 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return TK_OC_OR;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 41 "scanner.l"
+#line 143 "scanner.l"
 
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 43 "scanner.l"
-{yylval.valor_lexico = createValorLexico(yytext, SEM_NATUREZA, SEM_TIPO, yylineno); return yytext[0];}
+#line 145 "scanner.l"
+{yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
+                  yylval.valor_lexico->num_linha = yylineno;
+	                yylval.valor_lexico->tipo = SEM_TIPO;
+	                yylval.valor_lexico->valor = strdup(yytext);
+	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+                  return yytext[0];}
 	YY_BREAK
 case 21:
 /* rule 21 can match eol */
 YY_RULE_SETUP
-#line 44 "scanner.l"
+#line 151 "scanner.l"
 
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 46 "scanner.l"
+#line 153 "scanner.l"
 BEGIN(comment);
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 48 "scanner.l"
+#line 155 "scanner.l"
 {return TK_ERRO;}
 	YY_BREAK
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 50 "scanner.l"
+#line 157 "scanner.l"
 
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 51 "scanner.l"
+#line 158 "scanner.l"
 
 	YY_BREAK
 case 26:
 /* rule 26 can match eol */
 YY_RULE_SETUP
-#line 52 "scanner.l"
+#line 159 "scanner.l"
 
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 53 "scanner.l"
+#line 160 "scanner.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 55 "scanner.l"
+#line 162 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 958 "lex.yy.c"
+#line 1052 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -1972,7 +2066,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 55 "scanner.l"
+#line 162 "scanner.l"
 
 
 int get_line_number()
