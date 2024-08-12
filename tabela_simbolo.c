@@ -7,6 +7,7 @@
 /* Recebe uma tabela de simbolos e uma entrada, e insere as informacoes da entrada na tabela. */
 void insereEntradaTabela(Tabela** tabela, VALOR_LEXICO* valor_lexico)
 {
+    
     Tabela* novo = (Tabela*)malloc(sizeof(Tabela));
     novo->info = (VALOR_LEXICO*)malloc(sizeof(VALOR_LEXICO));
 
@@ -14,7 +15,7 @@ void insereEntradaTabela(Tabela** tabela, VALOR_LEXICO* valor_lexico)
     novo->info->num_linha = valor_lexico->num_linha;
     novo->info->natureza = valor_lexico->natureza;
     novo->info->tipo = valor_lexico->tipo;
-
+    printf("\n insereEntradaTabela: %s\n", valor_lexico->valor);
     novo->proximo = NULL;
 
     if (*tabela == NULL)

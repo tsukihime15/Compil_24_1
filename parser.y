@@ -109,7 +109,12 @@ extern Tabela *tabela_escopo;
 // Símbolo inicial
 raiz: {pushTabela(&lista_tabelas, tabela_global);} 
      programa;
-programa: program_list   {$$ = $1; arvore = $$; popTabela(&lista_tabelas);}
+programa: program_list   {$$ = $1; arvore = $$; 
+                         //printf("TABELA GLOBAL:\n\n");
+	                    //imprimeTabela(lista_tabelas->tabela_simbolos);
+	                    //printf("\n\n");
+                         imprimeInstrucoesNodo($$);
+                          popTabela(&lista_tabelas);}
      |                   {$$ = NULL; arvore = NULL; }
 ;
 
