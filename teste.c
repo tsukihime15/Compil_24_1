@@ -1,7 +1,8 @@
-() | int / fa {
-    int a,
-    a = 1,
-    a = 2,
-    a = 3,
-    a = 4,
+//ERR_VARIABLE
+() | int / f {
+  int a,
+  {
+    a(),
+  },
+  return 0,
 }

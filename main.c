@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include "arvore.h"
-#include "tabela_simbolo.h"
+#include "pilha_tabela.h"
 extern int yyparse(void);
 extern int yylex_destroy(void);
 void *arvore = NULL;
-Lista_tabelas *lista_tabelas = NULL;
-Tabela *tabela_global = NULL;
-Tabela *tabela_escopo = NULL;
-//void exporta (void *arvore);
+void exporta (NODO* arvore);
+void *pilha = NULL;
+void *tabela = NULL;
 
 int main (int argc, char **argv)
 { 
 
   int ret = yyparse(); 
-  //exporta (arvore);
+  exporta (arvore);
   yylex_destroy();
   return ret;
 }
