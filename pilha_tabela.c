@@ -4,9 +4,11 @@
 #include "pilha_tabela.h"
 
 /*Cria uma Pilha*/
-void inicialiazaPilha (Pilha_tabelas* pilha)
+Pilha_tabelas* criaPilha ()
 {
+    Pilha_tabelas* pilha = (Pilha_tabelas*) malloc (sizeof(Pilha_tabelas));
     pilha->topo = NULL;
+    return pilha;
 } 
 
 /*Retorna a tabela no topo da Pilha*/

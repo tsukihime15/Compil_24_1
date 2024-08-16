@@ -10,15 +10,15 @@ extern void yyerror (char const *mensagem);
 
 extern void* arvore;
 
-extern Pilha_tabelas *lista_tabelas;
-extern Tabela *tabela;
+extern Pilha_tabelas* pilha;
+extern Tabela* tabela;
 
 %}
 
 // %code requires
 // {
 //     #include "arvore.h"
-//      #include "pilha_tabela.h"
+//     #include "pilha_tabela.h"
 // }
 
 %union
@@ -102,14 +102,50 @@ extern Tabela *tabela;
 %type<nodo> cflow
 %type<nodo> else_command
 
+%type<nodo> abrir_escopo_global
+%type<nodo> fechar_escopo_global
+%type<nodo> abrir_escopo_funcao
+%type<nodo> fechar_escopo_funcao
+%type<nodo> abrir_escopo_bloco
+%type<nodo> fechar_escopo_bloco
 
 %%
 
 // Símbolo inicial
-raiz: {} 
-     programa;
+raiz: abrir_escopo_global programa fechar_escopo_global
+;
+
+abrir_escopo_global:  /*Vazio*/    { $$ = NULL;
+                                     tabela = criaTabela();
+                                     pilha = criaPilha();
+                                     pushTabelaNaPilha(pilha, tabela);
+                                   }
+;
+fechar_escopo_global: /*Vazio*/    { $$ = NULL;
+                                     popTabelaNaPilha(pilha);
+                                   }
+;
+abrir_escopo_funcao:  /*Vazio*/    { $$ = NULL;
+                                     tabela = criaTabela();
+                                     pushTabelaNaPilha(pilha, tabela);
+                                   }
+;
+fechar_escopo_funcao: /*Vazio*/    { $$ = NULL;
+                                     popTabelaNaPilha(pilha);
+                                   }
+;
+abrir_escopo_bloco:  /*Vazio*/     { $$ = NULL;
+                                     tabela = criaTabela();
+                                     pushTabelaNaPilha(pilha, tabela);
+                                   }
+;
+fechar_escopo_bloco: /*Vazio*/     { $$ = NULL;
+                                     popTabelaNaPilha(pilha);
+                                   }
+;
+
 programa: program_list   {$$ = $1; arvore = $$; }
-     |                   {$$ = NULL; arvore = NULL; }
+     |   /*Vazio*/       {$$ = NULL; arvore = NULL; }
 ;
 
 program_list: element program_list { if($1 == NULL) 
@@ -148,14 +184,15 @@ type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos
      ;
 // Função => cabeçalho e corpo
 // OBS: >>CABEÇALHOS<< FICAM NO ESCOPO GLOBAL
-func: header body {$$ = $2;
+func: header body fechar_escopo_funcao {$$ = $2;
                     if($2 != NULL)
                          addFilho($$,$2);
-                   }
+                    }
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: '(' push_tabela_escopo params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $8;}
+header: abrir_escopo_funcao '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $8;}
 ;
+
 ident_func: TK_IDENTIFICADOR 
      {
      }
@@ -178,7 +215,7 @@ body: command_block                               {$$ = $1;}
      ;
 // Aceita bloco com comando vazio 
 command_block: '{''}'                         {$$ = NULL;}
-     | '{' push_tabela_escopo command_list '}'           {$$ = $3;}
+     | '{' abrir_escopo_bloco command_list fechar_escopo_bloco '}'           {$$ = $3;}
      ;
 command_list: simple_command ',' command_list {if($1 == NULL) 
                                     {$$ = $3;}
@@ -191,9 +228,6 @@ command_list: simple_command ',' command_list {if($1 == NULL)
                                         
                                         }    }
      | simple_command ','                         {$$ = $1;}
-     ;
-
-push_tabela_escopo:      {}
      ;
 
 simple_command: command_block      {$$ = $1;}

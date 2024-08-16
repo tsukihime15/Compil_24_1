@@ -1,9 +1,11 @@
 #include "tabela_simbolo.h"
 
 /*Cria um Tabela*/
-void inicializaTabela(Tabela* tabela)
-{
+Tabela* criaTabela()
+{   
+    Tabela* tabela = (Tabela*) malloc(sizeof(Tabela));
     tabela->primeiro = NULL;
+    return tabela;
 }
 
 // Insere valor léxico na tabela

@@ -22,7 +22,7 @@ typedef struct Pilha_tabelas {
 } Pilha_tabelas;
 
 
-void inicialiazaPilha(Pilha_tabelas* pilha);
+Pilha_tabelas* criaPilha ();
 Tabela* topoPilha(Pilha_tabelas* pilha);
 NodoPilha* criarNodoPilha(Tabela* tabela);
 void insereValorLexicoNoTopoDaPilha(Pilha_tabelas* Pilha_tabelas, VALOR_LEXICO* valor_lexico);

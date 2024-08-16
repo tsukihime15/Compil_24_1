@@ -16,7 +16,7 @@ typedef struct Tabela {
     NodoTabela* primeiro;  // Ponteiro para o início da lista
 } Tabela;
 
-void inicializaTabela(Tabela* tabela);
+Tabela* criaTabela();
 void insereValorLexicoNaTabela (Tabela* tabela, VALOR_LEXICO* valor_lexico);
 void destroiTabela(Tabela* tabela);
 NodoTabela* criarNodoTabela(VALOR_LEXICO* valor_lexico);
