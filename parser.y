@@ -2,7 +2,7 @@
 /* Gessica Franciéle Mendonça Azevedo - 00302865 | Jéssica Maria Lorencetti - 00228342 | Mariana Koppe - 00219819 */
 #include <stdio.h>
 #include "arvore.h"
-#include "tabela_simbolo.h"
+#include "pilha_tabela.h"
 
 int yylex(void);
 int yyparse(void);
@@ -10,16 +10,15 @@ extern void yyerror (char const *mensagem);
 
 extern void* arvore;
 
-extern Lista_tabelas *lista_tabelas;
-extern Tabela *tabela_global;
-extern Tabela *tabela_escopo;
+extern Pilha_tabelas *lista_tabelas;
+extern Tabela *tabela;
 
 %}
 
 // %code requires
 // {
 //     #include "arvore.h"
-//      #include "tabela_simbolo.h"
+//      #include "pilha_tabela.h"
 // }
 
 %union
@@ -107,14 +106,9 @@ extern Tabela *tabela_escopo;
 %%
 
 // Símbolo inicial
-raiz: {pushTabela(&lista_tabelas, tabela_global);} 
+raiz: {} 
      programa;
-programa: program_list   {$$ = $1; arvore = $$; 
-                         //printf("TABELA GLOBAL:\n\n");
-	                    //imprimeTabela(lista_tabelas->tabela_simbolos);
-	                    //printf("\n\n");
-                         imprimeInstrucoesNodo($$);
-                          popTabela(&lista_tabelas);}
+programa: program_list   {$$ = $1; arvore = $$; }
      |                   {$$ = NULL; arvore = NULL; }
 ;
 
@@ -136,7 +130,7 @@ element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
 
         | func {$$ = $1;}
 ;
-ident_decl: TK_IDENTIFICADOR  {$$ = createNodo($1); printf("Criou nó\n");};
+ident_decl: TK_IDENTIFICADOR  {$$ = createNodo($1); };
 
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
@@ -164,13 +158,6 @@ header: '(' push_tabela_escopo params_list_void ')' TK_OC_OR type '/' ident_func
 ;
 ident_func: TK_IDENTIFICADOR 
      {
-          $1->tipo = INT; /*Por convenção, todas as var são int */
-          $1->natureza = FUNCTION;
-          $$ = createNodo($1);
-
-          verificaERR_DECLARED(lista_tabelas,$1);
-	     insereEntradaTabela(&(lista_tabelas->tabela_simbolos), $1);
-          
      }
      ;
 
@@ -206,7 +193,7 @@ command_list: simple_command ',' command_list {if($1 == NULL)
      | simple_command ','                         {$$ = $1;}
      ;
 
-push_tabela_escopo:      {pushTabela(&lista_tabelas, tabela_escopo);}
+push_tabela_escopo:      {}
      ;
 
 simple_command: command_block      {$$ = $1;}

@@ -2,6 +2,8 @@
     "files.associations": {
         "stdio.h": "c",
         "pilha_tabelas.h": "c",
-        "codigoassembly.h": "c"
+        "codigoassembly.h": "c",
+        "pilha_tabela.h": "c",
+        "tabela_simbolo.h": "c"
     }
 }
