@@ -73,6 +73,30 @@ void destroiListaTabelas(Pilha_tabelas* pilha) {
     }
 }
 
+int valorLexicoExisteNaPilha(Pilha_tabelas* pilha, VALOR_LEXICO* valor_lexico) {
+    NodoPilha* nodo_pilha_atual = pilha->topo;
+
+    // Percorre cada tabela na pilha
+    while (nodo_pilha_atual != NULL) {
+        Tabela* tabela_atual = nodo_pilha_atual->tabela;
+        NodoTabela* nodo_tabela_atual = tabela_atual->primeiro;
+
+        // Percorre cada nodo da tabela
+        while (nodo_tabela_atual != NULL) {
+            if (strcmp(valor_lexico->valor, nodo_tabela_atual->info->valor) == 0) {
+                // Valor encontrado na tabela
+                return 1;
+            }
+            nodo_tabela_atual = nodo_tabela_atual->proximo;
+        }
+
+        nodo_pilha_atual = nodo_pilha_atual->proximo;
+    }
+
+    // Valor não encontrado em nenhuma tabela
+    return 0;
+}
+
 /* Verifica os seguintes erros de semantica:
 ERR_UNDECLARED - Caso o identificador não tenha sido declarado no seu uso;
 ERR_FUNCTION   - Caso o identificador dito como funcao esteja sendo usado como variavel. */

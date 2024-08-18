@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "arvore.h"
 #include "pilha_tabela.h"
+#include "codigoAssembly.h"
 
 int yylex(void);
 int yyparse(void);
@@ -115,36 +116,9 @@ extern Tabela* tabela;
 raiz: abrir_escopo_global programa fechar_escopo_global
 ;
 
-abrir_escopo_global:  /*Vazio*/    { $$ = NULL;
-                                     tabela = criaTabela();
-                                     pilha = criaPilha();
-                                     pushTabelaNaPilha(pilha, tabela);
-                                   }
-;
-fechar_escopo_global: /*Vazio*/    { $$ = NULL;
-                                     popTabelaNaPilha(pilha);
-                                   }
-;
-abrir_escopo_funcao:  /*Vazio*/    { $$ = NULL;
-                                     tabela = criaTabela();
-                                     pushTabelaNaPilha(pilha, tabela);
-                                   }
-;
-fechar_escopo_funcao: /*Vazio*/    { $$ = NULL;
-                                     popTabelaNaPilha(pilha);
-                                   }
-;
-abrir_escopo_bloco:  /*Vazio*/     { $$ = NULL;
-                                     tabela = criaTabela();
-                                     pushTabelaNaPilha(pilha, tabela);
-                                   }
-;
-fechar_escopo_bloco: /*Vazio*/     { $$ = NULL;
-                                     popTabelaNaPilha(pilha);
-                                   }
-;
-
-programa: program_list   {$$ = $1; arvore = $$; }
+programa: program_list   {$$ = $1; arvore = $$; 
+                              generateAsm(arvore);
+                         }
      |   /*Vazio*/       {$$ = NULL; arvore = NULL; }
 ;
 
@@ -166,7 +140,9 @@ element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
 
         | func {$$ = $1;}
 ;
-ident_decl: TK_IDENTIFICADOR  {$$ = createNodo($1); };
+ident_decl: TK_IDENTIFICADOR  {$$ = createNodo($1);
+                               
+                              };
 
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
@@ -289,6 +265,7 @@ expr: expr8                   {$$ = $1;}
 expr8: expr8 TK_OC_OR expr7   {$$ = createNodo($2);
                                addFilho($$, $1);
                                addFilho($$, $3);
+
                               }
      | expr7                  {$$ = $1;}
      ;
@@ -373,4 +350,34 @@ literal: TK_LIT_INT           {$$ = createNodo($1);}
      | TK_LIT_FALSE           {$$ = createNodo($1);}
      | TK_LIT_TRUE            {$$ = createNodo($1);}
      ;
+
+abrir_escopo_global:  /*Vazio*/    { $$ = NULL;
+                                     tabela = criaTabela();
+                                     pilha = criaPilha();
+                                     pushTabelaNaPilha(pilha, tabela);
+                                   }
+;
+fechar_escopo_global: /*Vazio*/    { $$ = NULL;
+                                     popTabelaNaPilha(pilha);
+                                   }
+;
+abrir_escopo_funcao:  /*Vazio*/    { $$ = NULL;
+                                     tabela = criaTabela();
+                                     pushTabelaNaPilha(pilha, tabela);
+                                   }
+;
+fechar_escopo_funcao: /*Vazio*/    { $$ = NULL;
+                                     popTabelaNaPilha(pilha);
+                                   }
+;
+abrir_escopo_bloco:  /*Vazio*/     { $$ = NULL;
+                                     tabela = criaTabela();
+                                     pushTabelaNaPilha(pilha, tabela);
+                                   }
+;
+fechar_escopo_bloco: /*Vazio*/     { $$ = NULL;
+                                     popTabelaNaPilha(pilha);
+                                   }
+;
+
 %%

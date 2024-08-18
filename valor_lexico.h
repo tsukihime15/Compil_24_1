@@ -13,8 +13,8 @@
 /* Constantes para definir a natureza de um token */
 #define LITERAL 0
 #define VARIABLE 1
-#define EXPRESSION_OPERATOR 2
-#define LANGUAGE_OPERATOR 3
+#define ATRIBUITION 2
+#define OPERATOR 3
 #define CONTROL 4
 #define TYPE 5
 #define SYNTAX_TOKEN 6

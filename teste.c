@@ -1,8 +1,6 @@
-//ERR_VARIABLE
-() | int / f {
+() | int / main
+{
   int a,
-  {
-    a(),
-  },
-  return 0,
+  a = 1,
+  return a,
 }

@@ -13,7 +13,7 @@ VALOR_LEXICO* createValorLexico(char* valor, int natureza, int tipo, int num_lin
 
 void freeValorLexico(VALOR_LEXICO* valor_lexico)
 {
-    if (valor_lexico = NULL) 
+    if (valor_lexico == NULL) 
         return;
 
     free(valor_lexico);

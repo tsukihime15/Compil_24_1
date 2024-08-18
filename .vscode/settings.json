@@ -6,6 +6,7 @@
         "pilha_tabela.h": "c",
         "tabela_simbolo.h": "c",
         "stdlib.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "valor_lexico.h": "c"
     }
 }

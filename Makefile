@@ -1,13 +1,13 @@
 CC=gcc
 CFLAGS =-I.
 
-DEPS = parser.tab.h valor_lexico.h arvore.h tabela_simbolo.h pilha_tabela.h
-OBJ = main.o lex.yy.o parser.tab.o arvore.o valor_lexico.o tabela_simbolo.o pilha_tabela.o 
+DEPS = parser.tab.h valor_lexico.h arvore.h tabela_simbolo.h pilha_tabela.h codigoAssembly.h
+OBJ = main.o lex.yy.o parser.tab.o arvore.o valor_lexico.o tabela_simbolo.o pilha_tabela.o codigoAssembly.o
 
 etapa6: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-main.o lex.yy.o parser.tab.o arvore.o valor_lexico.o tabela_simbolo.o pilha_tabela.o: $(DEPS)
+main.o lex.yy.o parser.tab.o arvore.o valor_lexico.o tabela_simbolo.o pilha_tabela.o codigoAssembly.o: $(DEPS)
 
 parser.tab.c parser.tab.h: parser.y
 	bison -d parser.y

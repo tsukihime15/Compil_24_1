@@ -3,6 +3,7 @@
 NODO* createNodo(VALOR_LEXICO* valor_lexico)
 {
     NODO* nodo = malloc(sizeof(NODO));
+    if (!nodo) return NULL;
 
     nodo->valor_lexico = valor_lexico;
     nodo->pai = NULL;
@@ -15,11 +16,17 @@ NODO* createNodo(VALOR_LEXICO* valor_lexico)
 NODO* createFcallNodo(VALOR_LEXICO* valor_lexico)
 {
  
-    NODO* nodo = createNodo(valor_lexico);
+    NODO* nodo = createNodo(createValorLexico(valor_lexico->valor, valor_lexico->natureza, valor_lexico->tipo, valor_lexico->num_linha));
+    if (!nodo) return NULL;
+
     char* novo_valor = malloc(strlen("call ") + strlen(nodo->valor_lexico->valor) + 1);
+    if (!novo_valor) return NULL;
+
     char* call_string = "call ";
     strcpy(novo_valor, call_string);
     strcat(novo_valor, nodo->valor_lexico->valor);
+
+    free(nodo->valor_lexico->valor);
     nodo->valor_lexico->valor = novo_valor;
     
     return nodo;
@@ -31,7 +38,7 @@ void addFilho(NODO* pai, NODO* filho)
 
     if (!pai)
     {
-        removeNodo(pai);
+        removeNodo(filho);
         return;
     }
 
@@ -63,11 +70,11 @@ void removeNodo(NODO* nodo)
 {
     if (!nodo) return;
 
-    freeValorLexico(nodo->valor_lexico);
-
     removeNodo(nodo->filho);
     removeNodo(nodo->irmao);
 
+    freeValorLexico(nodo->valor_lexico);
+    
     free(nodo);
 }
 
@@ -94,6 +101,19 @@ void printValorLexico(NODO* nodo)
 
 void printArvore(NODO* nodo)
 {
+    if (!nodo) return;
+
+    // DEBUG de LOOP: Verifique se já foi impresso antes
+    static void* visited[1000]; 
+    static int visited_count = 0;
+
+    for (int i = 0; i < visited_count; i++) {
+        if (visited[i] == nodo) {
+            return; // Já visitado
+        }
+    }
+    visited[visited_count++] = nodo;
+
     if (nodo->pai)
     {
         printf("%p, %p\n", nodo->pai, nodo);

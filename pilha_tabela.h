@@ -31,7 +31,7 @@ void pushTabelaNaPilha(Pilha_tabelas* Pilha, Tabela *nova_tabela);
 
 void destroiListaTabelas(Pilha_tabelas* pilha);
 void imprimeUltimaTabelaDaPilha(Pilha_tabelas* Pilha_tabelas);
-
+int valorLexicoExisteNaPilha(Pilha_tabelas* pilha, VALOR_LEXICO* valor_lexico);
 void verificaERR_UNDECLARED_FUNCTION(Pilha_tabelas *Pilha_tabelas, VALOR_LEXICO* identificador);
 void verificaERR_DECLARED(Pilha_tabelas *Pilha_tabelas, VALOR_LEXICO* identificador);
 void verificaERR_VARIABLE_UNDECLARED_chamadafuncao(Pilha_tabelas *Pilha_tabelas, char *valor_token, int linha_token);
