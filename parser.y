@@ -252,10 +252,23 @@ simple_command: command_block      {$$ = $1;}
      ;
 
 //Declaração de variáveis locais
-decl_local: type id_list_lc                 {$$ = NULL;} 
+decl_local: type id_list_lc                 {$$ = $1;
+                                             $2->valor_lexico->natureza = VARIABLE;
+                                             addFilho($$,$2);
+                                             } 
      ;
-id_list_lc: id_list_lc ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
-     | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
+id_list_lc: ident_decl ';' id_list_lc   {if($1 == NULL) 
+                                             {$$ = $3;}
+                                             else
+                                                  { 
+                                                  if($3 == NULL) {$$ = $1;}                   
+                                                  else
+                                                       {$1->valor_lexico->natureza = VARIABLE; 
+                                                       $$ = $1; addFilho($$,$3);}
+                                             } 
+                                        }
+     | ident_decl                  {$1->valor_lexico->natureza = VARIABLE;
+                                   $$ = $1;}                
      ;
 
 // Chamada de Atribuição
