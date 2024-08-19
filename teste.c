@@ -1,3 +1,4 @@
+int z,
 () | int / main
 {
   int a,

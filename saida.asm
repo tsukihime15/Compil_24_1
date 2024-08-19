@@ -5,6 +5,8 @@
 main:
 	pushq   %rbp
 	movq    %rsp, %rbp
-	subq    $32, %rsp	movq    %rbp, %rsp
+	subq    $32, %rsp
+1
+	movq    %rbp, %rsp
 	popq    %rbp
 	ret

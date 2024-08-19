@@ -12,15 +12,16 @@
 
 /* Constantes para definir a natureza de um token */
 #define LITERAL 0
-#define VARIABLE 1
-#define ATRIBUITION 2
-#define OPERATOR 3
-#define CONTROL 4
-#define TYPE 5
-#define SYNTAX_TOKEN 6
-#define FUNCTION_CALL 7
-#define FUNCTION 8
-#define SEM_NATUREZA 9
+#define GLOBAL_DECL 1
+#define VARIABLE 2
+#define ATRIBUITION 3
+#define OPERATOR 4
+#define CONTROL 5
+#define TYPE 6
+#define RETURN 7
+#define FUNCTION_CALL 8
+#define FUNCTION 9
+#define SEM_NATUREZA 99
 
 typedef struct VALOR_LEXICO
 {

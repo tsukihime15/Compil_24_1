@@ -136,27 +136,49 @@ program_list: element program_list { if($1 == NULL)
           | element {$$=$1;} 
 
 ;
-element: decl_global  {$$ = NULL;} // Declaracoes nao sao usadas nessa etapa
+element: decl_global  {$$ = $1;} 
 
         | func {$$ = $1;}
 ;
 ident_decl: TK_IDENTIFICADOR  {$$ = createNodo($1);
-                               
+                              $$->valor_lexico->tipo = INT;
                               };
 
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
-decl_global: type id_list_gl ','             {$$ = NULL;}  // Declaracoes nao sao usadas nessa etapa
+decl_global: type id_list_gl ','             {$$ = $1;
+                                             $2->valor_lexico->natureza = GLOBAL_DECL;
+                                             addFilho($$,$2);
+                                             } 
 ;
 
 // Lista de identificadores
-id_list_gl: id_list_gl ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas nessa etapa
-     | ident_decl                  {$$ = $1;}// Declaracoes nao sao usadas nessa etapa                 
+id_list_gl: ident_decl ';' id_list_gl{if($1 == NULL) 
+                                      {$$ = $3;}
+                                       else
+                                        { 
+                                        if($3 == NULL) {$$ = $1;}                   
+                                            else
+                                              {$1->valor_lexico->natureza = GLOBAL_DECL; 
+                                               $$ = $1; addFilho($$,$3);}
+                                        }    
+                                     }
+     | ident_decl                  {$1->valor_lexico->natureza = GLOBAL_DECL;
+                                   $$ = $1;}                
      ;
 // Tipos
-type: TK_PR_INT    {$$ = NULL;} //tipos nao criam nodos nem sao filhos        
-     | TK_PR_FLOAT {$$ = NULL;} //tipos nao criam nodos nem sao filhos         
-     | TK_PR_BOOL  {$$ = NULL;} //tipos nao criam nodos nem sao filhos         
+type: TK_PR_INT     {$1->tipo = INT;
+                     $1->natureza = TYPE;
+                     $$ = createNodo($1);
+                    } //vai ser sempre int         
+     | TK_PR_FLOAT {$1->tipo = INT;
+                     $1->natureza = TYPE;
+                     $$ = createNodo($1);
+                    } //nao importa, vai ser sempre int          
+     | TK_PR_BOOL  {$1->tipo = INT;
+                     $1->natureza = TYPE;
+                     $$ = createNodo($1);
+                    } //nao importa, vai ser sempre int        
      ;
 // Função => cabeçalho e corpo
 // OBS: >>CABEÇALHOS<< FICAM NO ESCOPO GLOBAL
@@ -166,24 +188,35 @@ func: header body fechar_escopo_funcao {$$ = $2;
                     }
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: abrir_escopo_funcao '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $8;}
+header: abrir_escopo_funcao '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $8;
+                                                                                     addFilho($$,$3);}
 ;
 
 ident_func: TK_IDENTIFICADOR 
      { $$ = createNodo($1);
+     $$->valor_lexico->tipo = INT;
      }
      ;
 
 // Params: Tipo e lista de parâmetros
-params_list_void: params_list {$$ = NULL;} //nada nessa etapa
+params_list_void: params_list {$$ = $1;} 
      | {$$=NULL;}                       
      ;
-params_list: param ';' params_list {$$=NULL;}//nada nessa etapa
-    | param {$$=NULL;}
+params_list: param ';' params_list {if($1 == NULL) 
+                                      {$$ = $3;}
+                                       else
+                                        { 
+                                        if($3 == NULL) {$$ = $1;}                   
+                                            else
+                                              {$$ = $1; addFilho($$,$3);}
+                                        }    
+                                     }
+    | param {$$=$1;}
      ;
-param: type ident_param {$$=NULL;}//nada nessa etapa
+param: type ident_param {$$ = $2;}
      ;
-ident_param: TK_IDENTIFICADOR {$$=NULL;}//nada nessa etapa
+ident_param: TK_IDENTIFICADOR {$$ = createNodo($1);
+     $$->valor_lexico->tipo = INT;}
 ;
 
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
@@ -223,12 +256,16 @@ id_list_lc: id_list_lc ';' ident_decl    {$$ = $1;}// Declaracoes nao sao usadas
 
 // Chamada de Atribuição
 atr: TK_IDENTIFICADOR '=' expr     {$$ = createNodo($2);
+                                    $1->tipo = INT;
+                                    $1->natureza = ATRIBUITION;
                                     addFilho($$, createNodo($1));
                                     addFilho($$, $3);
                                    }
      ;
 // Chamada de Função
-fcall: TK_IDENTIFICADOR '(' args_list ')'   {$$ = createFcallNodo($1);
+fcall: TK_IDENTIFICADOR '(' args_list ')'   {$1->tipo = INT;
+                                             $1->natureza = FUNCTION_CALL;
+                                            $$ = createFcallNodo($1);
                                             addFilho($$,$3);
                                              }
      ;
@@ -238,9 +275,11 @@ args_list: expr  ';' args_list               {$$ = $1;
      | expr                                  {$$ = $1;}
      ;
 // Retorno
-return: TK_PR_RETURN expr   {$$ = createNodo($1);
-                                 addFilho($$,$2);
-                                }              
+return: TK_PR_RETURN expr     {$1->tipo = INT;
+                              $1->natureza = RETURN;
+                              $$ = createNodo($1);
+                              addFilho($$,$2);
+                              }              
      ;
 
 // Controle de Fluxo

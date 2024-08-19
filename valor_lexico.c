@@ -15,6 +15,7 @@ void freeValorLexico(VALOR_LEXICO* valor_lexico)
 {
     if (valor_lexico == NULL) 
         return;
-
+        
+    free(valor_lexico->valor);
     free(valor_lexico);
 }
