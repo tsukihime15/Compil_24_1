@@ -367,7 +367,7 @@ expr5: expr5 '<' expr4        {$$ = createNodo($2);
                               }
      | expr4                  {$$ = $1;}
      ;
-expr4: expr4 '+' expr3        {$$ = createNodo($2);    
+expr4: expr4 '+' expr3        {$$ = createNodo($2);                           
                                $$->valor_lexico->natureza = OPERATOR;                       
                                addFilho($$, $1);
                                addFilho($$, $3);

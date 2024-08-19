@@ -1,12 +1,12 @@
 	.file	"entrada.c"
 	.text
 	.globl	a
-	.data
+	.bss
 	.align 4
 	.type	a, @object
 	.size	a, 4
 a:
-	.long	3
+	.zero	4
 	.text
 	.globl	main
 	.type	main, @function
@@ -15,12 +15,16 @@ main:
 	.cfi_startproc
 	endbr64
 	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
+
 	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movl	a(%rip), %eax
-	movl	%eax, -4(%rbp)
+
+	movl	$3, -8(%rbp) 		b = 3
+
+	movl	$4, -4(%rbp) 		c = 4 
+
+	movl	-8(%rbp), %eax 		a = b
+	movl	%eax, a(%rip)		
+
 	movl	$0, %eax
 	popq	%rbp
 	.cfi_def_cfa 7, 8

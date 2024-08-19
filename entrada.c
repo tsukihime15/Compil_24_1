@@ -1,7 +1,10 @@
-int a = 3; 
+int a; 
 int main() { 
-    int b; 
-    b = a; 
+    int b;
+    int c; 
+    b = 3;
+    c = 4;
+    a = b; 
     return 0; 
 }
 int notmain() {

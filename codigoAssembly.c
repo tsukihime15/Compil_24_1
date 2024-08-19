@@ -43,13 +43,13 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
             // Código para declarar uma variavel local (?)
             geraCodigoExpressao(nodo, output_file);
             //geraCodigoVariable(nodo, output_file);
-            fprintf(output_file, "\tPassou VARIABLE %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
+            fprintf(output_file, "# Passou VARIABLE %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
             break;
 
         case OPERAND:
             // Código para usar uma variavel em uma expressao
             //geraCodigoOperand(nodo, output_file);
-            fprintf(output_file, "\tPassou OPERAND %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
+            fprintf(output_file, "# Passou OPERAND %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
             break;
 
         case ATRIBUITION:
@@ -134,35 +134,18 @@ void geraCodigoAtrib(NODO* nodo, FILE *output_file) {
     // nodo->filho->irmao eh o OPERAND
     // nodo->filho->irmao->irmao e a expressao
 
-<<<<<<< HEAD
-    if(nodo->filho == NULL)
-<<<<<<< HEAD
+    if(nodo->filho == NULL|| nodo->filho->irmao == NULL || nodo->filho->irmao->irmao == NULL)
     {}
-    else if (nodo->filho->valor_lexico->natureza == VARIABLE)
-    {}
-    else if (nodo->filho->valor_lexico->natureza == OPERAND){
-        geraCodigoPelaAST(nodo->filho,output_file); //preciso q passe aqui para receber o deslocamento
-=======
-        {}
         else
-    if (nodo->filho->valor_lexico->natureza == OPERAND){
->>>>>>> cbea55a (corrigindo atribuicao)
-        fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->valor_lexico->deslocamento);
+    if (nodo->filho->irmao->irmao->valor_lexico->natureza == LITERAL){
+        fprintf(output_file, "\tmovl\t$%s, %d(%%rbp)\n",nodo->filho->irmao->irmao->valor_lexico->valor 
+                                                       ,nodo->filho->irmao->valor_lexico->deslocamento);
     }
-    else if (nodo->filho->valor_lexico->natureza == LITERAL)
-        fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->valor_lexico->valor);
-=======
-    if(nodo->filho == NULL || nodo->filho->irmao == NULL || nodo->filho->irmao->irmao == NULL)
-        {}
-        else
-    if (nodo->filho->irmao->valor_lexico->natureza == OPERAND){ //se nao for deu erro
-        fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->irmao->valor_lexico->deslocamento);
-    }
+    else if (nodo->filho->irmao->irmao->valor_lexico->natureza == OPERAND) {
+            fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->irmao->irmao->valor_lexico->deslocamento);
+            fprintf(output_file, "\tmovl\t%%eax, %s(%%rip)\n",nodo->filho->irmao->valor_lexico->valor);
+        }
     
-    if (nodo->filho->irmao->irmao->valor_lexico->natureza == LITERAL)
-            fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->irmao->irmao->valor_lexico->valor);
->>>>>>> 3523d64 (certo)
-        
     //geraCodigoExpressao(nodo->irmao, output_file);
 
 }
@@ -258,6 +241,7 @@ void geraCodigoFuncao(NODO* nodo, FILE *output_file) {
     fprintf(output_file, "\t.type %s, @function\n", nodo->valor_lexico->valor);
 
     fprintf(output_file, "%s:\n", nodo->valor_lexico->valor);
+    fprintf(output_file, ".LFB0:\n");
     fprintf(output_file, "\tpushq \t%%rbp\n");
     fprintf(output_file, "\tmovq \t%%rsp, %%rbp\n");
     fprintf(output_file, "\tsubq \t$%d, %%rsp\n", 10 * 4); // Assumindo 4 bytes por variável e no max 10 variaveis
@@ -279,11 +263,11 @@ void geraCodigoExpressao(NODO *arvore, FILE *output_file) {
 }
 
 void geraCodigoBloco(NODO *arvore, FILE *output_file) {
-    fprintf(output_file, "\t// Início do bloco de comandos\n");
+    fprintf(output_file, "# Início do bloco de comandos\n");
     for (NODO *comando = arvore->filho; comando != NULL; comando = comando->irmao) {
         geraCodigoBloco(comando, output_file);
     }
-    fprintf(output_file, "\t// Fim do bloco de comandos\n");
+    fprintf(output_file, "# Fim do bloco de comandos\n");
 }
 
 /*Seleciona o proximo registrador*/
