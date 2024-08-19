@@ -31,7 +31,6 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
     switch (nodo->valor_lexico->natureza) {
         case LITERAL:
             // Código para um literal
-            //geraCodigo(nodo, output_file);
             fprintf(output_file, "\tmovl $%s, %%eax\n", nodo->valor_lexico->valor);
             fprintf(output_file, "\tPassou LITERAL\n");
             break;
@@ -45,6 +44,7 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
         case VARIABLE:
             // Código para declarar uma variavel local (?)
             geraCodigoVariable(nodo, output_file);
+            fprintf(output_file, "\tPassou VARIABLE\n");
             break;
 
         case ATRIBUITION:
@@ -126,10 +126,8 @@ void geraCodigoAtrib(NODO* arvore, FILE *output_file) {
     if (arvore == NULL) return;
     // arvore->filho eh o identificador
     // arvore->irmao eh a expressao
-    //fprintf(output_file, "\t// Código para atribuição\n");
     geraCodigoExpressao(arvore->filho->irmao, output_file);
     fprintf(output_file, "\t// movl %%eax, %s(%%rip)\n", arvore->filho->valor_lexico->valor);
-
 }
 
 void geraCodigoOperacao(NODO* arvore, FILE *output_file){
@@ -201,7 +199,6 @@ void geraCodigoRetorno(NODO* nodo, FILE *output_file){
 }
 
 void geraCodigoChamadaFuncao(NODO* arvore, FILE *output_file) {
-    //fprintf(output_file, "\t// Código para chamada de função\n");
     // arvore->filho é a função
     // arvore->irmao é a lista de argumentos
     for (NODO* arg = arvore->irmao; arg != NULL; arg = arg->irmao) {
@@ -210,8 +207,6 @@ void geraCodigoChamadaFuncao(NODO* arvore, FILE *output_file) {
     }
     fprintf(output_file, "\tcall %s\n", arvore->filho->valor_lexico->valor);
     fprintf(output_file, "\tadd $%d, %%esp\n", 4 * contador_de_argumentos(arvore->irmao)); // Limpa a pilha
-
-    //fprintf(output_file, "\tcall %s\n", arvore->valor_lexico->valor);
 }
 
 void geraCodigoFuncao(NODO* nodo, FILE *output_file) {
