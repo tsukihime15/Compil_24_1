@@ -22,6 +22,7 @@ void geraCodigoVariable(NODO* nodo, FILE* output_file);
 void geraCodigoAtrib(NODO* arvore, FILE *output_file);
 void geraCodigoOperacao(NODO* arvore, FILE *output_file);
 void geraCodigoControle(NODO* arvore, FILE *output_file);
+void geraCodigoRetorno(NODO* arvore, FILE *output_file);
 void geraCodigoChamadaFuncao(NODO* arvore, FILE *output_file);
 void geraCodigoFuncao(NODO* nodo, FILE *output_file);
 void geraCodigoExpressao(NODO *arvore, FILE *output_file);
