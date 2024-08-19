@@ -40,16 +40,21 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
         case LITERAL:
             // Código para um literal
             //geraCodigo(nodo, output_file);
+            fprintf(output_file, "\tmovl $%s, %%eax\n", nodo->valor_lexico->valor);
+            fprintf(output_file, "\tPassou LITERAL\n");
             break;
 
         case GLOBAL_DECL:
             // Código para um literal
             geraCodigoVarGlobal(nodo, output_file);
+            fprintf(output_file, "\tPassou GLOBAL_DECL\n");
             break;
 
         case VARIABLE:
             // Código para uma variavel
             //geraCodigo(nodo, output_file);
+            fprintf(output_file, "\tmovl %s, %%eax\n", nodo->valor_lexico->valor);
+            fprintf(output_file, "\tPassou VARIABLE\n");
             break;
 
         case ATRIBUITION:
@@ -75,6 +80,7 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
         case RETURN:
             // Código para um RETURN
             //geraCodigo(nodo, output_file);
+            //fprintf(output_file, "\tret\n");
             break;
 
         case FUNCTION_CALL:
@@ -103,27 +109,82 @@ void geraCodigoVarGlobal(NODO* arvore, FILE* output_file){
 }
 
 void geraCodigoAtrib(NODO* arvore, FILE *output_file) {
+    if (arvore == NULL) return;
     // arvore->filho eh o identificador
     // arvore->irmao eh a expressao
-    fprintf(output_file, "\t// Código para atribuição\n");
-    geraCodigoExpressao(arvore->irmao, output_file);
-    fprintf(output_file, "\t// Código para armazenar o valor em %s\n", arvore->filho->valor_lexico->valor);
+    //fprintf(output_file, "\t// Código para atribuição\n");
+    geraCodigoExpressao(arvore->filho->irmao, output_file);
+    fprintf(output_file, "\t// movl %%eax, %s(%%rip)\n", arvore->filho->valor_lexico->valor);
 
 }
 
 void geraCodigoOperacao(NODO* arvore, FILE *output_file){
+if (arvore == NULL) return;
 
+    // Gera código para o operando esquerdo
+    geraCodigoExpressao(arvore->filho, output_file);
+
+    // Empilha o resultado da operação no registrador
+    fprintf(output_file, "\tpush %%eax\n");
+
+    // Gera código para o operando direito
+    geraCodigoExpressao(arvore->filho->irmao, output_file);
+
+    // Desempilha e realiza a operação
+    fprintf(output_file, "\tpop %%ecx\n");
+    //int intValue = atoi(arvore->valor_lexico->valor);
+    switch (arvore->valor_lexico->valor[0]) {
+        case '+':
+            fprintf(output_file, "\taddl %%ecx, %%eax\n");
+            break;
+        case '-':
+            fprintf(output_file, "\tsubl %%ecx, %%eax\n");
+            break;
+        case '*':
+            fprintf(output_file, "\timull %%ecx, %%eax\n");
+            break;
+        case '/':
+            fprintf(output_file, "\tcltd\n");
+            fprintf(output_file, "\tidivl %%ecx\n");
+            break;
+    }
 }
 
 void geraCodigoControle(NODO* arvore, FILE *output_file){
+    static int label_counter = 0;
+    int local_label = label_counter++;
 
+    if (strcmp(arvore->valor_lexico->valor, "if") == 0) {
+        geraCodigoExpressao(arvore->filho, output_file);
+        fprintf(output_file, "\tcmp $0, %%eax\n");
+        fprintf(output_file, "\tje .L%d\n", local_label);
+        geraCodigoPelaAST(arvore->filho->irmao, output_file); // bloco 'then'
+        fprintf(output_file, ".L%d:\n", local_label);
+    } else if (strcmp(arvore->valor_lexico->valor, "while") == 0) {
+        int start_label = label_counter++;
+        int end_label = label_counter++;
+        fprintf(output_file, ".L%d:\n", start_label);
+        geraCodigoExpressao(arvore->filho, output_file);
+        fprintf(output_file, "\tcmp $0, %%eax\n");
+        fprintf(output_file, "\tje .L%d\n", end_label);
+        geraCodigoPelaAST(arvore->filho->irmao, output_file); // bloco 'while'
+        fprintf(output_file, "\tjmp .L%d\n", start_label);
+        fprintf(output_file, ".L%d:\n", end_label);
+    }
 }
 
 void geraCodigoChamadaFuncao(NODO* arvore, FILE *output_file) {
     fprintf(output_file, "\t// Código para chamada de função\n");
     // arvore->filho é a função
     // arvore->irmao é a lista de argumentos
-    fprintf(output_file, "\tcall %s\n", arvore->valor_lexico->valor);
+    for (NODO* arg = arvore->irmao; arg != NULL; arg = arg->irmao) {
+        geraCodigoPelaAST(arg, output_file);
+        fprintf(output_file, "\tpush %%eax\n");
+    }
+    fprintf(output_file, "\tcall %s\n", arvore->filho->valor_lexico->valor);
+    fprintf(output_file, "\tadd $%d, %%esp\n", 4 * contador_de_argumentos(arvore->irmao)); // Limpa a pilha
+
+    //fprintf(output_file, "\tcall %s\n", arvore->valor_lexico->valor);
 }
 
 void geraCodigoFuncao(NODO* nodo, FILE *output_file) {
@@ -136,15 +197,18 @@ void geraCodigoFuncao(NODO* nodo, FILE *output_file) {
 }
 
 void geraCodigoExpressao(NODO *arvore, FILE *output_file) {
+    if (arvore == NULL) return;
+
     if (arvore->valor_lexico->natureza == OPERATOR) {
         // Gerar código para operadores binários
-        geraCodigoExpressao(arvore->filho, output_file);
-        geraCodigoExpressao(arvore->irmao, output_file);
-        fprintf(output_file, "\t// Código para operador %s\n", arvore->valor_lexico->valor);
+        //geraCodigoExpressao(arvore->filho, output_file);
+        //geraCodigoExpressao(arvore->irmao, output_file);
+        geraCodigoOperacao(arvore, output_file);
+        //fprintf(output_file, "\t// Código para operador %s\n", arvore->valor_lexico->valor);
     } else if (arvore->valor_lexico->natureza == VARIABLE) {
-        fprintf(output_file, "\t// Código para variável %s\n", arvore->valor_lexico->valor);
+        fprintf(output_file, "\t// movl %s(%%rip), %%eax \n", arvore->valor_lexico->valor);
     } else if (arvore->valor_lexico->natureza == LITERAL) {
-        fprintf(output_file, "\t// Código para literal %s\n", arvore->valor_lexico->valor);
+        fprintf(output_file, "\t// movl $%s, %%eax \n", arvore->valor_lexico->valor);
     }
 }
 
@@ -164,4 +228,13 @@ int selecionaRegistrador (int Registrador_atual){
         Registrador_atual = 8;
     
     return Registrador_atual;
+}
+
+// Função auxiliar para contar os argumentos de uma função
+int contador_de_argumentos(NODO* nodo) {
+    int count = 0;
+    for (NODO* arg = nodo; arg != NULL; arg = arg->irmao) {
+        count++;
+    }
+    return count;
 }

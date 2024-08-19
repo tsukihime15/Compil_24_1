@@ -28,5 +28,6 @@ void geraCodigoExpressao(NODO *arvore, FILE *output_file);
 void geraCodigoBloco(NODO *arvore, FILE *output_file);
 
 int selecionaRegistrador (int Registrador_atual);
+int contador_de_argumentos(NODO* nodo);
 
 #endif
