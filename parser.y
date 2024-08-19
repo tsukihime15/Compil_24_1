@@ -413,7 +413,7 @@ expr0: operand                {$$ = $1;}
      ;
 
 operand: TK_IDENTIFICADOR     {$$ = createNodo($1);
-                              $$->valor_lexico->natureza = VARIABLE;}
+                              $$->valor_lexico->natureza = OPERAND;}
      | literal                {$$ = $1;}
      | fcall                  {$$ = $1;}
      ;

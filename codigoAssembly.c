@@ -31,22 +31,25 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
     switch (nodo->valor_lexico->natureza) {
         case LITERAL:
             // Código para um literal
-            //fprintf(output_file, "\tmovl $%s, %%eax\n", nodo->valor_lexico->valor);
-            //fprintf(output_file, "\tPassou LITERAL\n");
             geraCodigoExpressao(nodo, output_file);
             break;
 
         case GLOBAL_DECL:
             // Código para declarar variaveis globais
             geraCodigoVarGlobal(nodo, output_file);
-            //fprintf(output_file, "\tPassou GLOBAL_DECL\n");
             break;
 
         case VARIABLE:
             // Código para declarar uma variavel local (?)
-            //geraCodigoVariable(nodo, output_file);
-            //fprintf(output_file, "\tPassou VARIABLE\n");
             geraCodigoExpressao(nodo, output_file);
+            //geraCodigoVariable(nodo, output_file);
+            fprintf(output_file, "\tPassou VARIABLE %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
+            break;
+
+        case OPERAND:
+            // Código para usar uma variavel em uma expressao
+            //geraCodigoOperand(nodo, output_file);
+            fprintf(output_file, "\tPassou OPERAND %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
             break;
 
         case ATRIBUITION:
@@ -133,9 +136,13 @@ void geraCodigoAtrib(NODO* nodo, FILE *output_file) {
     if(nodo->filho == NULL)
     {}
     else if (nodo->filho->valor_lexico->natureza == VARIABLE)
+    {}
+    else if (nodo->filho->valor_lexico->natureza == OPERAND){
+        geraCodigoPelaAST(nodo->filho,output_file); //preciso q passe aqui para receber o deslocamento
         fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->valor_lexico->deslocamento);
+    }
     else if (nodo->filho->valor_lexico->natureza == LITERAL)
-            fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->valor_lexico->valor);
+        fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->valor_lexico->valor);
         
     //geraCodigoExpressao(nodo->irmao, output_file);
 
@@ -201,7 +208,7 @@ void geraCodigoRetorno(NODO* nodo, FILE *output_file){
     if(nodo->filho == NULL)
         {}
         else
-    if (nodo->filho->valor_lexico->natureza == VARIABLE)
+    if (nodo->filho->valor_lexico->natureza == OPERAND)
         fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->valor_lexico->deslocamento);
     else if (nodo->filho->valor_lexico->natureza == LITERAL)
             fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->valor_lexico->valor);
@@ -245,6 +252,8 @@ void geraCodigoExpressao(NODO *arvore, FILE *output_file) {
         num_var_local ++;
         arvore->valor_lexico->deslocamento = num_var_local * -4;
         fprintf(output_file, "\tmovl %s(%%rip), %%eax \n", arvore->valor_lexico->valor);
+    } else if (arvore->valor_lexico->natureza == OPERAND) {
+        fprintf(output_file, "\t movl %d(%%rip), %%eax \n", arvore->valor_lexico->deslocamento);
     } else if (arvore->valor_lexico->natureza == LITERAL) {
         fprintf(output_file, "\tmovl $%s, %%eax \n", arvore->valor_lexico->valor);
     }

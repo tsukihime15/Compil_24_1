@@ -21,6 +21,7 @@
 #define RETURN 7
 #define FUNCTION_CALL 8
 #define FUNCTION 9
+#define OPERAND 10
 #define SEM_NATUREZA 99
 
 typedef struct VALOR_LEXICO
