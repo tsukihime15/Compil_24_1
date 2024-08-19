@@ -130,15 +130,22 @@ void geraCodigoVariable(NODO* nodo, FILE* output_file){
 }
 
 void geraCodigoAtrib(NODO* nodo, FILE *output_file) {
-    // arvore->filho eh o identificador
-    // arvore->irmao eh a expressao
+    // nodo->filho eh o =
+    // nodo->filho->irmao eh o OPERAND
+    // nodo->filho->irmao->irmao e a expressao
 
     if(nodo->filho == NULL)
+<<<<<<< HEAD
     {}
     else if (nodo->filho->valor_lexico->natureza == VARIABLE)
     {}
     else if (nodo->filho->valor_lexico->natureza == OPERAND){
         geraCodigoPelaAST(nodo->filho,output_file); //preciso q passe aqui para receber o deslocamento
+=======
+        {}
+        else
+    if (nodo->filho->valor_lexico->natureza == OPERAND){
+>>>>>>> cbea55a (corrigindo atribuicao)
         fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->valor_lexico->deslocamento);
     }
     else if (nodo->filho->valor_lexico->natureza == LITERAL)
