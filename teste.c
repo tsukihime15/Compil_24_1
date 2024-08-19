@@ -9,5 +9,5 @@ int k,
   z = 9,
   b = 4,
   a = z + b,
-  return a,
+  return b,
 }

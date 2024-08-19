@@ -190,7 +190,8 @@ func: header body fechar_escopo_funcao {
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
 header: abrir_escopo_funcao '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $8;
-                                                                                     addFilho($$,$3);}
+                                                                 //addFilho($$,$3); //parametros de funcao nao foram implementados
+                                                                                     }
 ;
 
 ident_func: TK_IDENTIFICADOR 
@@ -201,7 +202,7 @@ ident_func: TK_IDENTIFICADOR
      ;
 
 // Params: Tipo e lista de parâmetros
-params_list_void: params_list {$$ = $1;} 
+params_list_void: params_list {$$ = NULL;} 
      | {$$=NULL;}                       
      ;
 params_list: param ';' params_list {if($1 == NULL) 
@@ -383,14 +384,19 @@ expr1: '(' expr ')'           {$$ = $2;}
 expr0: operand                {$$ = $1;}
      ;
 
-operand: TK_IDENTIFICADOR     {$$ = createNodo($1);}
+operand: TK_IDENTIFICADOR     {$$ = createNodo($1);
+                              $$->valor_lexico->natureza = VARIABLE;}
      | literal                {$$ = $1;}
      | fcall                  {$$ = $1;}
      ;
-literal: TK_LIT_INT           {$$ = createNodo($1);}
-     | TK_LIT_FLOAT           {$$ = createNodo($1);}
-     | TK_LIT_FALSE           {$$ = createNodo($1);}
-     | TK_LIT_TRUE            {$$ = createNodo($1);}
+literal: TK_LIT_INT           {$$ = createNodo($1);
+                              $$->valor_lexico->natureza = LITERAL;}
+     | TK_LIT_FLOAT           {$$ = createNodo($1);
+                              $$->valor_lexico->natureza = LITERAL;}
+     | TK_LIT_FALSE           {$$ = createNodo($1);
+                              $$->valor_lexico->natureza = LITERAL;}
+     | TK_LIT_TRUE            {$$ = createNodo($1);
+                              $$->valor_lexico->natureza = LITERAL;}
      ;
 
 abrir_escopo_global:  /*Vazio*/    { $$ = NULL;

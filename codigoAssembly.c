@@ -17,9 +17,6 @@ void generateAsm(NODO* arvore){
 
     geraCodigoPelaAST(arvore, output_file);
 
-    /*Final do arquivo .asm*/
-    fprintf(output_file, "\tmovq    %%rbp, %%rsp\n\tpopq    %%rbp\n\tret\n");
-
     if (output_file != stdout) 
         fclose(output_file);
 }
@@ -34,16 +31,16 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
     switch (nodo->valor_lexico->natureza) {
         case LITERAL:
             // Código para um literal
-            //geraCodigo(nodo, output_file);
+            //fprintf(output_file, "$%s",nodo->valor_lexico->valor);
             break;
 
         case GLOBAL_DECL:
-            // Código para um literal
+            // Código para declarar variaveis globais
             geraCodigoVarGlobal(nodo, output_file);
             break;
 
         case VARIABLE:
-            // Código para uma variavel
+            // Código para declarar uma variavel local (?)
             geraCodigoVariable(nodo, output_file);
             break;
 
@@ -69,7 +66,7 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
 
         case RETURN:
             // Código para um RETURN
-            //geraCodigo(nodo, output_file);
+            geraCodigoRetorno(nodo, output_file);
             break;
 
         case FUNCTION_CALL:
@@ -116,8 +113,10 @@ void geraCodigoVarGlobal(NODO* nodo, FILE* output_file){
 }
 
 void geraCodigoVariable(NODO* nodo, FILE* output_file){
+    // acho que so precisa definir o deslocamento dela (posicao da pilha)
     num_var_local ++;
     nodo->valor_lexico->deslocamento = num_var_local * -4;
+    //fprintf(output_file, "%d",nodo->valor_lexico->valor);
 }
 
 void geraCodigoAtrib(NODO* arvore, FILE *output_file) {
@@ -137,6 +136,19 @@ void geraCodigoControle(NODO* arvore, FILE *output_file){
 
 }
 
+void geraCodigoRetorno(NODO* nodo, FILE *output_file){
+    if(nodo->filho == NULL)
+        {}
+        else
+    if (nodo->filho->valor_lexico->natureza == VARIABLE)
+        fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->valor_lexico->deslocamento);
+    else if (nodo->filho->valor_lexico->natureza == LITERAL)
+            fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->valor_lexico->valor);
+    fprintf(output_file, "\tmovq\t%%rbp, %%rsp\n");
+    fprintf(output_file, "\tpopq\t%%rbp\n");
+    fprintf(output_file, "\tret\n");
+}
+
 void geraCodigoChamadaFuncao(NODO* arvore, FILE *output_file) {
     //fprintf(output_file, "\t// Código para chamada de função\n");
     // arvore->filho é a função
@@ -153,6 +165,7 @@ void geraCodigoFuncao(NODO* nodo, FILE *output_file) {
         }
     fprintf(output_file, "\t.globl %s\n", nodo->valor_lexico->valor);
     fprintf(output_file, "\t.type %s, @function\n", nodo->valor_lexico->valor);
+
     fprintf(output_file, "%s:\n", nodo->valor_lexico->valor);
     fprintf(output_file, "\tpushq \t%%rbp\n");
     fprintf(output_file, "\tmovq \t%%rsp, %%rbp\n");

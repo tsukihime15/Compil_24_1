@@ -19,6 +19,6 @@ main:
 	pushq 	%rbp
 	movq 	%rsp, %rbp
 	subq 	$40, %rsp
-	movq    %rbp, %rsp
-	popq    %rbp
+	movq	%rbp, %rsp
+	popq	%rbp
 	ret
