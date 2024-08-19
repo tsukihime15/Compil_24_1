@@ -9,7 +9,7 @@ NODO* createNodo(VALOR_LEXICO* valor_lexico)
     nodo->pai = NULL;
     nodo->irmao = NULL;
     nodo->filho = NULL;
-
+    nodo->visitado = 0;
     return nodo;
 }
 
@@ -81,38 +81,33 @@ void removeNodo(NODO* nodo)
 void exporta(NODO* nodo)
 {
     if (!nodo) return;
-
-    printValorLexico(nodo);
-    printArvore(nodo);
+    printValorLexico(nodo); // Todos os nós com visitado = 0, usa visitado para checar se já foi printado
+    printArvore(nodo); // Todos os nós com visitado = 1, usa !visitado para checar se já foi printado
 }
+
 
 void printValorLexico(NODO* nodo)
 {
+    if (!nodo || nodo->visitado) return;
+
+    nodo->visitado = 1;
     printf("%p [label=\"%s\"];\n", nodo, nodo->valor_lexico->valor);
+
     if (nodo->filho)
     {
         printValorLexico(nodo->filho);
+
     }
     if (nodo->irmao)
     {
-        printValorLexico(nodo->irmao);
+        printValorLexico(nodo->irmao);    
     }
 }
 
 void printArvore(NODO* nodo)
 {
-    if (!nodo) return;
-
-    // DEBUG de LOOP: Verifique se já foi impresso antes
-    static void* visited[1000]; 
-    static int visited_count = 0;
-
-    for (int i = 0; i < visited_count; i++) {
-        if (visited[i] == nodo) {
-            return; // Já visitado
-        }
-    }
-    visited[visited_count++] = nodo;
+    if (!nodo || !nodo->visitado) return;
+    nodo->visitado = 0;
 
     if (nodo->pai)
     {

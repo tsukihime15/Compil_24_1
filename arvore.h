@@ -10,6 +10,7 @@ typedef struct NODO
     struct NODO* pai;
     struct NODO* irmao;
     struct NODO* filho;
+    int visitado;
 } NODO;
 
 NODO* createNodo(VALOR_LEXICO* valor_lexico);
