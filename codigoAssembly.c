@@ -1,17 +1,18 @@
 #include "codigoAssembly.h"
 
 int Registrador_atual = 7; 
-int section_data = 0; //para variaveis globais e constantes
+
+int section_bss = 0; //para variaveis globais e constantes
+int section_text_var_glbl = 0; //para var globais
+int section_text_func = 0; //para funcoes
+int num_var_local = 0;
+
 /*chamada uma vez so na raiz da AST*/
 
 void generateAsm(NODO* arvore){
 
     FILE *output_file = stdout;
 
-    /*Cabecalho do arquivo .asm*/
-    fprintf(output_file, ".file   \"main.c\"\n\t.text\n\t.globl  main\n\t.type   main, @function\nmain:\n");
-    fprintf(output_file,"\tpushq   %%rbp\n\tmovq    %%rsp, %%rbp\n\tsubq    $32, %%rsp\n");
-    
     //printf("1\n"); // debug
 
     geraCodigoPelaAST(arvore, output_file);
@@ -30,12 +31,6 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
     if (!nodo || nodo->visitado) return;
     nodo->visitado = 1;
 
-//Inicia a declaracao de Var Globais
-    if(nodo->valor_lexico->natureza == GLOBAL_DECL && section_data == 0)
-        {
-        fprintf(output_file, "section .data\n");
-        section_data = 1;
-        }
     switch (nodo->valor_lexico->natureza) {
         case LITERAL:
             // Código para um literal
@@ -49,7 +44,7 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
 
         case VARIABLE:
             // Código para uma variavel
-            //geraCodigo(nodo, output_file);
+            geraCodigoVariable(nodo, output_file);
             break;
 
         case ATRIBUITION:
@@ -84,7 +79,7 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
 
         case FUNCTION:
             // Código para uma função
-            //geraCodigoFuncao(nodo, output_file);
+            geraCodigoFuncao(nodo, output_file);
             break;
 
         default:
@@ -97,9 +92,32 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
 
 }
 
-void geraCodigoVarGlobal(NODO* arvore, FILE* output_file){
-    
-    fprintf(output_file, "\t%s resd 1\n",arvore->valor_lexico->valor);
+void geraCodigoVarGlobal(NODO* nodo, FILE* output_file){
+    //Inicia a declaracao de Var Globais
+    if(section_text_var_glbl == 0)
+        {
+        fprintf(output_file, "\t.text\n");
+        section_text_var_glbl = 1;
+        }
+
+    fprintf(output_file, "\t.globl\t%s\n",nodo->valor_lexico->valor); 
+
+    if(section_bss == 0)
+        {
+        fprintf(output_file, "\t.bss\n");
+        section_bss = 1;
+        }
+
+    fprintf(output_file, "\t.align 4\n");
+    fprintf(output_file, "\t.type\tz, @object\n");
+    fprintf(output_file, "\t.size\t%s, 4\n",nodo->valor_lexico->valor);
+    fprintf(output_file, "%s:\n",nodo->valor_lexico->valor);
+    fprintf(output_file, "\t.zero	4\n");
+}
+
+void geraCodigoVariable(NODO* nodo, FILE* output_file){
+    num_var_local ++;
+    nodo->valor_lexico->deslocamento = num_var_local * -4;
 }
 
 void geraCodigoAtrib(NODO* arvore, FILE *output_file) {
@@ -120,19 +138,25 @@ void geraCodigoControle(NODO* arvore, FILE *output_file){
 }
 
 void geraCodigoChamadaFuncao(NODO* arvore, FILE *output_file) {
-    fprintf(output_file, "\t// Código para chamada de função\n");
+    //fprintf(output_file, "\t// Código para chamada de função\n");
     // arvore->filho é a função
     // arvore->irmao é a lista de argumentos
     fprintf(output_file, "\tcall %s\n", arvore->valor_lexico->valor);
 }
 
 void geraCodigoFuncao(NODO* nodo, FILE *output_file) {
+    //Inicia a declaracao da funcao
+    if(section_text_func == 0)
+        {
+        fprintf(output_file, "\t.text\n");
+        section_text_func = 1;
+        }
     fprintf(output_file, "\t.globl %s\n", nodo->valor_lexico->valor);
     fprintf(output_file, "\t.type %s, @function\n", nodo->valor_lexico->valor);
     fprintf(output_file, "%s:\n", nodo->valor_lexico->valor);
-    fprintf(output_file, "\tpushq %%rbp\n");
-    fprintf(output_file, "\tmovq %%rsp, %%rbp\n");
-    //fprintf(output_file, "\tsubq $%d, %%rsp\n", quantasVarNaLista(nodo) * 4); // Assumindo 4 bytes por variável
+    fprintf(output_file, "\tpushq \t%%rbp\n");
+    fprintf(output_file, "\tmovq \t%%rsp, %%rbp\n");
+    fprintf(output_file, "\tsubq \t$%d, %%rsp\n", 10 * 4); // Assumindo 4 bytes por variável e no max 10 variaveis
 }
 
 void geraCodigoExpressao(NODO *arvore, FILE *output_file) {

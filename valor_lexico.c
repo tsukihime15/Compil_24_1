@@ -6,6 +6,7 @@ VALOR_LEXICO* createValorLexico(char* valor, int natureza, int tipo, int num_lin
     valor_lexico->num_linha = num_linha;
     valor_lexico->natureza = natureza;
     valor_lexico->tipo = tipo;
+    valor_lexico->deslocamento = 0;
     valor_lexico->valor = strdup(valor);
 
     return valor_lexico;

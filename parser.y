@@ -182,9 +182,10 @@ type: TK_PR_INT     {$1->tipo = INT;
      ;
 // Função => cabeçalho e corpo
 // OBS: >>CABEÇALHOS<< FICAM NO ESCOPO GLOBAL
-func: header body fechar_escopo_funcao {$$ = $2;
-                    if($2 != NULL)
-                         addFilho($$,$2);
+func: header body fechar_escopo_funcao {
+                    if($1 != NULL)
+                         addFilho($1,$2);
+                    $$ = $1;
                     }
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
@@ -195,6 +196,7 @@ header: abrir_escopo_funcao '(' params_list_void ')' TK_OC_OR type '/' ident_fun
 ident_func: TK_IDENTIFICADOR 
      { $$ = createNodo($1);
      $$->valor_lexico->tipo = INT;
+     $$->valor_lexico->natureza = FUNCTION;
      }
      ;
 
@@ -216,7 +218,8 @@ params_list: param ';' params_list {if($1 == NULL)
 param: type ident_param {$$ = $2;}
      ;
 ident_param: TK_IDENTIFICADOR {$$ = createNodo($1);
-     $$->valor_lexico->tipo = INT;}
+     $$->valor_lexico->tipo = INT;
+     $$->valor_lexico->natureza = VARIABLE;}
 ;
 
 // Bloco de comandos (corpo) => Declaração de var. | Chamada de Atribuição | Chamada de Função | Retorno | Controle de fluxo | outro bloco de comandos
