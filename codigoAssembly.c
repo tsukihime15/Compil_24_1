@@ -253,7 +253,7 @@ void geraCodigoExpressao(NODO *arvore, FILE *output_file) {
         arvore->valor_lexico->deslocamento = num_var_local * -4;
         fprintf(output_file, "\tmovl %s(%%rip), %%eax \n", arvore->valor_lexico->valor);
     } else if (arvore->valor_lexico->natureza == OPERAND) {
-        fprintf(output_file, "\t movl %d(%%rip), %%eax \n", arvore->valor_lexico->deslocamento);
+        fprintf(output_file, "\tmovl %d(%%rip), %%eax \n", arvore->valor_lexico->deslocamento);
     } else if (arvore->valor_lexico->natureza == LITERAL) {
         fprintf(output_file, "\tmovl $%s, %%eax \n", arvore->valor_lexico->valor);
     }
