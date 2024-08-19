@@ -134,6 +134,7 @@ void geraCodigoAtrib(NODO* nodo, FILE *output_file) {
     // nodo->filho->irmao eh o OPERAND
     // nodo->filho->irmao->irmao e a expressao
 
+<<<<<<< HEAD
     if(nodo->filho == NULL)
 <<<<<<< HEAD
     {}
@@ -150,6 +151,17 @@ void geraCodigoAtrib(NODO* nodo, FILE *output_file) {
     }
     else if (nodo->filho->valor_lexico->natureza == LITERAL)
         fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->valor_lexico->valor);
+=======
+    if(nodo->filho == NULL || nodo->filho->irmao == NULL || nodo->filho->irmao->irmao == NULL)
+        {}
+        else
+    if (nodo->filho->irmao->valor_lexico->natureza == OPERAND){ //se nao for deu erro
+        fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->irmao->valor_lexico->deslocamento);
+    }
+    
+    if (nodo->filho->irmao->irmao->valor_lexico->natureza == LITERAL)
+            fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->irmao->irmao->valor_lexico->valor);
+>>>>>>> 3523d64 (certo)
         
     //geraCodigoExpressao(nodo->irmao, output_file);
 
