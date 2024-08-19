@@ -1,24 +1,12 @@
-	.file	"teste.c"
+	.file	"entrada.c"
 	.text
 	.globl	a
-	.bss
+	.data
 	.align 4
 	.type	a, @object
 	.size	a, 4
 a:
-	.zero	4
-	.globl	z
-	.align 4
-	.type	z, @object
-	.size	z, 4
-z:
-	.zero	4
-	.globl	c
-	.align 4
-	.type	c, @object
-	.size	c, 4
-c:
-	.zero	4
+	.long	3
 	.text
 	.globl	main
 	.type	main, @function
