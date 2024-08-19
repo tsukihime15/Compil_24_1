@@ -170,7 +170,7 @@ header: abrir_escopo_funcao '(' params_list_void ')' TK_OC_OR type '/' ident_fun
 ;
 
 ident_func: TK_IDENTIFICADOR 
-     {
+     { $$ = createNodo($1);
      }
      ;
 

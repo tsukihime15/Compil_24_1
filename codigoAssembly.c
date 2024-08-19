@@ -11,7 +11,7 @@ void generateAsm(NODO* arvore){
     fprintf(output_file, ".file   \"main.c\"\n\t.text\n\t.globl  main\n\t.type   main, @function\nmain:\n");
     fprintf(output_file,"\tpushq   %%rbp\n\tmovq    %%rsp, %%rbp\n\tsubq    $32, %%rsp");
 
-    geraCodigoPelaAST(arvore, output_file);
+    //geraCodigoPelaAST(arvore, output_file);
 
     /*Final do arquivo .asm*/
     fprintf(output_file, "\tmovq    %%rbp, %%rsp\n\tpopq    %%rbp\n\tret\n");
