@@ -29,6 +29,8 @@ typedef struct VALOR_LEXICO
     int tipo;    
     int natureza;
 
+    int deslocamento;
+
     char* valor;
 } VALOR_LEXICO;
 

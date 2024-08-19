@@ -1,7 +1,13 @@
 int z,
+int k,
 () | int / main
 {
+  int d,
+  int c,
+  int b,
   int a,
-  a = 1,
+  z = 9,
+  b = 4,
+  a = z + b,
   return a,
 }
