@@ -122,12 +122,21 @@ void geraCodigoVariable(NODO* nodo, FILE* output_file){
     //fprintf(output_file, "%d",nodo->valor_lexico->valor);
 }
 
-void geraCodigoAtrib(NODO* arvore, FILE *output_file) {
-    if (arvore == NULL) return;
+void geraCodigoAtrib(NODO* nodo, FILE *output_file) {
     // arvore->filho eh o identificador
     // arvore->irmao eh a expressao
-    geraCodigoExpressao(arvore->filho->irmao, output_file);
-    fprintf(output_file, "\t// movl %%eax, %s(%%rip)\n", arvore->filho->valor_lexico->valor);
+
+    if(nodo->filho == NULL)
+        {}
+        else
+    if (nodo->filho->valor_lexico->natureza == VARIABLE)
+        fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->valor_lexico->deslocamento);
+    else if (nodo->filho->valor_lexico->natureza == LITERAL)
+            fprintf(output_file, "\tmovl\t$%s, %%eax\n",nodo->filho->valor_lexico->valor);
+        
+    geraCodigoExpressao(nodo->irmao, output_file);
+    fprintf(output_file, "\t// Código para armazenar o valor em %s\n", nodo->filho->valor_lexico->valor);
+
 }
 
 void geraCodigoOperacao(NODO* arvore, FILE *output_file){
