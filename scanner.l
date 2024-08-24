@@ -68,14 +68,14 @@ id        [a-z_][a-z_0-9]*
                   yylval.valor_lexico->num_linha = yylineno;
 	                yylval.valor_lexico->tipo = BOOL;
 	                yylval.valor_lexico->valor = strdup(yytext);
-	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+	                yylval.valor_lexico->natureza = LITERAL;
                   return TK_LIT_FALSE;}
 
 "true"            {yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
                   yylval.valor_lexico->num_linha = yylineno;
 	                yylval.valor_lexico->tipo = BOOL;
 	                yylval.valor_lexico->valor = strdup(yytext);
-	                yylval.valor_lexico->natureza = SEM_NATUREZA;
+	                yylval.valor_lexico->natureza = LITERAL;
                   return TK_LIT_TRUE;}
 
 {id}              {yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
@@ -89,14 +89,15 @@ id        [a-z_][a-z_0-9]*
                           yylval.valor_lexico->num_linha = yylineno;
 	                        yylval.valor_lexico->tipo = FLOAT;
 	                        yylval.valor_lexico->valor = strdup(yytext);
-	                        yylval.valor_lexico->natureza = SEM_NATUREZA;
+	                        yylval.valor_lexico->natureza = LITERAL;
                           return TK_LIT_FLOAT;}
 
 {numero}+        {yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
                   yylval.valor_lexico->num_linha = yylineno;
 	                yylval.valor_lexico->tipo = INT;
 	                yylval.valor_lexico->valor = strdup(yytext);
-	                yylval.valor_lexico->natureza = SEM_NATUREZA;return TK_LIT_INT;}
+	                yylval.valor_lexico->natureza = LITERAL;
+					return TK_LIT_INT;}
 
 "<="              {yylval.valor_lexico = (VALOR_LEXICO*) malloc(sizeof(VALOR_LEXICO));
                   yylval.valor_lexico->num_linha = yylineno;

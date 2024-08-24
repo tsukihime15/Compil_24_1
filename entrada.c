@@ -1,13 +1,8 @@
-int a; 
+int z;
+int k; 
 int main() { 
-    int b;
-    int c; 
-    b = 3;
-    c = 4;
-    a = b; 
+    int a;
+    int b; 
+
     return 0; 
-}
-int notmain() {
-    int c;
-    return 2;
 }

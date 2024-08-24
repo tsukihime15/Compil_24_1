@@ -2,12 +2,13 @@ int z,
 int k,
 () | int / main
 {
-  int d,
-  int c,
-  int b,
   int a,
-  z = 9,
-  b = 4,
-  a = z + b,
-  return b,
+  int b,
+  int c,
+  a = b,
+    if (a > 0) {
+    c = 1,
+    b = z + c,
+  },
+  return a,
 }

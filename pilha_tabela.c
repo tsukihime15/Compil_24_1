@@ -62,7 +62,7 @@ void popTabelaNaPilha(Pilha_tabelas* pilha) {
 
     NodoPilha* temp = pilha->topo;
     pilha->topo = pilha->topo->proximo;
-    destroiTabela(temp->tabela); // Destroi a tabela
+    //destroiTabela(temp->tabela); // comentada pois estava dando problemas
     free(temp);
 }
 

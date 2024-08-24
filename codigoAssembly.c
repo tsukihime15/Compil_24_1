@@ -31,65 +31,73 @@ void geraCodigoPelaAST(NODO* nodo, FILE* output_file){
     switch (nodo->valor_lexico->natureza) {
         case LITERAL:
             // Código para um literal
-            geraCodigoExpressao(nodo, output_file);
+            //geraCodigoExpressao(nodo, output_file);
+            //fprintf(output_file, "# Passou LITERAL\n");
             break;
 
         case GLOBAL_DECL:
             // Código para declarar variaveis globais
             geraCodigoVarGlobal(nodo, output_file);
+            //fprintf(output_file, "# Passou GLOBAL_DECL\n");
             break;
 
         case VARIABLE:
             // Código para declarar uma variavel local (?)
             geraCodigoExpressao(nodo, output_file);
             //geraCodigoVariable(nodo, output_file);
-            fprintf(output_file, "# Passou VARIABLE %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
+            //fprintf(output_file, "# Passou VARIABLE %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
             break;
 
         case OPERAND:
             // Código para usar uma variavel em uma expressao
             //geraCodigoOperand(nodo, output_file);
-            fprintf(output_file, "# Passou OPERAND %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
+            //fprintf(output_file, "# Passou OPERAND %s, desl %d\n",nodo->valor_lexico->valor, nodo->valor_lexico->deslocamento);
             break;
 
         case ATRIBUITION:
             // Código para uma atribuição
             geraCodigoAtrib(nodo, output_file);
-            //fprintf(output_file, "\tPassou ATRIBUITION\n");
+            //fprintf(output_file, "# Passou ATRIBUITION\n");
             break;
 
         case OPERATOR:
             // Código para uma função
             geraCodigoOperacao(nodo, output_file);
-            //fprintf(output_file, "\tPassou OPERATOR\n");
+            //fprintf(output_file, "# Passou OPERATOR\n");
             break;
 
         case CONTROL:
             // Código para uma função
-            //geraCodigoControle(nodo, output_file);
+            geraCodigoControle(nodo, output_file);
+            //fprintf(output_file, "# Passou CONTROL\n");
             break;
 
         case TYPE:
             // Código para um TYPE
             //geraCodigo(nodo, output_file);
+            //fprintf(output_file, "# Passou TYPE\n");
             break;
 
         case RETURN:
             // Código para um RETURN
             geraCodigoRetorno(nodo, output_file);
+            //fprintf(output_file, "# Passou RETURN %s\n",nodo->valor_lexico->valor);
             break;
 
         case FUNCTION_CALL:
             // Código para uma chamada de função
             //geraCodigoChamadaFuncao(nodo, output_file);
+            //fprintf(output_file, "# Passou FUNCTION_CALL\n");
             break;
 
         case FUNCTION:
             // Código para uma função
             geraCodigoFuncao(nodo, output_file);
+            //fprintf(output_file, "# Passou FUNCTION\n");
             break;
 
         default:
+            //fprintf(output_file, "# Passou default\n");
             break;
     }
 
@@ -207,8 +215,11 @@ void geraCodigoControle(NODO* arvore, FILE *output_file){
 }
 
 void geraCodigoRetorno(NODO* nodo, FILE *output_file){
+    //fprintf(output_file, "\n# CODIGO DO RETURN\n");
+    //printNodos(nodo, output_file);
     if(nodo->filho == NULL)
-        {}
+        {//fprintf(output_file, "# Passou RETURN %s, mas filho e NULL\n",nodo->valor_lexico->valor);
+        }
         else
     if (nodo->filho->valor_lexico->natureza == OPERAND)
         fprintf(output_file, "\tmovl\t%d(%%rbp), %%eax\n",nodo->filho->valor_lexico->deslocamento);
@@ -247,28 +258,23 @@ void geraCodigoFuncao(NODO* nodo, FILE *output_file) {
     fprintf(output_file, "\tsubq \t$%d, %%rsp\n", 10 * 4); // Assumindo 4 bytes por variável e no max 10 variaveis
 }
 
-void geraCodigoExpressao(NODO *arvore, FILE *output_file) {
+void geraCodigoExpressao(NODO *nodo, FILE *output_file) {
     //fprintf(output_file, "\tarvore->valor_lexico->natureza %d \n", arvore->valor_lexico->natureza);
-    if (arvore == NULL) return;
+    if (nodo == NULL) return;
 
-    if (arvore->valor_lexico->natureza == VARIABLE) {
+    if (nodo->valor_lexico->natureza == VARIABLE) {
         num_var_local ++;
-        arvore->valor_lexico->deslocamento = num_var_local * -4;
-        fprintf(output_file, "\tmovl %s(%%rip), %%eax \n", arvore->valor_lexico->valor);
-    } else if (arvore->valor_lexico->natureza == OPERAND) {
-        fprintf(output_file, "\tmovl %d(%%rip), %%eax \n", arvore->valor_lexico->deslocamento);
-    } else if (arvore->valor_lexico->natureza == LITERAL) {
-        fprintf(output_file, "\tmovl $%s, %%eax \n", arvore->valor_lexico->valor);
+        nodo->valor_lexico->deslocamento = num_var_local * -4;
+        fprintf(output_file, "\tmovl %s(%%rip), %%eax \n", nodo->valor_lexico->valor);
+    } else if (nodo->valor_lexico->natureza == OPERAND) {
+        fprintf(output_file, "\tmovl %d(%%rip), %%eax \n", nodo->valor_lexico->deslocamento);
+    } else if (nodo->valor_lexico->natureza == LITERAL) {
+        fprintf(output_file, "\tmovl $%s, %%eax \n", nodo->valor_lexico->valor);
+    //fprintf(output_file, "\n# CODIGO DA EXPRESSAO\n");
+    //printNodos(nodo, output_file);
     }
 }
 
-void geraCodigoBloco(NODO *arvore, FILE *output_file) {
-    fprintf(output_file, "# Início do bloco de comandos\n");
-    for (NODO *comando = arvore->filho; comando != NULL; comando = comando->irmao) {
-        geraCodigoBloco(comando, output_file);
-    }
-    fprintf(output_file, "# Fim do bloco de comandos\n");
-}
 
 /*Seleciona o proximo registrador*/
 int selecionaRegistrador (int Registrador_atual){
@@ -287,4 +293,13 @@ int contador_de_argumentos(NODO* nodo) {
         count++;
     }
     return count;
+}
+
+//Funcao para debugar
+void printNodos(NODO *nodo, FILE *output_file){
+    fprintf(output_file, "\n# PRINT NODO \nvalor: %s\nnatureza: %d\ntipo: %d\ndeslocamento: %d\n\n", 
+                                                nodo->filho->valor_lexico->valor, 
+                                                nodo->filho->valor_lexico->natureza,
+                                                nodo->filho->valor_lexico->tipo,
+                                                nodo->filho->valor_lexico->deslocamento);
 }

@@ -26,9 +26,9 @@ void geraCodigoRetorno(NODO* arvore, FILE *output_file);
 void geraCodigoChamadaFuncao(NODO* arvore, FILE *output_file);
 void geraCodigoFuncao(NODO* nodo, FILE *output_file);
 void geraCodigoExpressao(NODO *arvore, FILE *output_file);
-void geraCodigoBloco(NODO *arvore, FILE *output_file);
 
 int selecionaRegistrador (int Registrador_atual);
 int contador_de_argumentos(NODO* nodo);
+void printNodos(NODO *nodo, FILE *output_file);
 
 #endif

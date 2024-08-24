@@ -34,6 +34,7 @@ NODO* createFcallNodo(VALOR_LEXICO* valor_lexico)
 
 void addFilho(NODO* pai, NODO* filho)
 {
+    FILE *output_file = stdout;
     if (!filho) return;
 
     if (!pai)
@@ -51,6 +52,7 @@ void addFilho(NODO* pai, NODO* filho)
     {
         pai->filho = filho;
     }
+    //fprintf(output_file, "\n# PRINT NODO FILHO \nvalor: %s\nnatureza: %d\ntipo: %d\n", filho->valor_lexico->valor, filho->valor_lexico->natureza,filho->valor_lexico->tipo);
     filho->pai = pai;
 }
 

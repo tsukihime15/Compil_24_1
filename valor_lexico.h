@@ -3,11 +3,13 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /*Constante para definir o tipo de um token*/
 #define INT 0
 #define FLOAT 1
 #define BOOL 2
+
 #define SEM_TIPO 3
 
 /* Constantes para definir a natureza de um token */
@@ -22,6 +24,7 @@
 #define FUNCTION_CALL 8
 #define FUNCTION 9
 #define OPERAND 10
+
 #define SEM_NATUREZA 99
 
 typedef struct VALOR_LEXICO

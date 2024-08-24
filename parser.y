@@ -142,7 +142,10 @@ element: decl_global  {$$ = $1;}
 ;
 ident_decl: TK_IDENTIFICADOR  {$$ = createNodo($1);
                               $$->valor_lexico->tipo = INT;
-                              };
+                              insereValorLexicoNoTopoDaPilha(pilha, $$->valor_lexico);
+                              //imprimeUltimaTabelaDaPilha(pilha);
+                              }
+;
 
 // Variáveis globais => Tipo e Lista de identificadores
 // Declaração de variáveis globais
@@ -189,9 +192,10 @@ func: header body fechar_escopo_funcao {
                     }
      ;
 // Cabeçalho => Parâmetros OR Tipo / Identificador
-header: abrir_escopo_funcao '(' params_list_void ')' TK_OC_OR type '/' ident_func   {$$ = $8;
-                                                                 //addFilho($$,$3); //parametros de funcao nao foram implementados
-                                                                                     }
+header:  '(' params_list_void ')' TK_OC_OR type '/' ident_func { 
+                                                            insereValorLexicoNoTopoDaPilha(pilha, $7->valor_lexico);
+                                                            //imprimeUltimaTabelaDaPilha(pilha);
+                                                            } abrir_escopo_funcao  {$$ = $7;}
 ;
 
 ident_func: TK_IDENTIFICADOR 
@@ -254,6 +258,8 @@ simple_command: command_block      {$$ = $1;}
 //Declaração de variáveis locais
 decl_local: type id_list_lc                 {$$ = $1;
                                              $2->valor_lexico->natureza = VARIABLE;
+                                             
+                                             //imprimeUltimaTabelaDaPilha(pilha);
                                              addFilho($$,$2);
                                              } 
      ;
@@ -413,18 +419,24 @@ expr0: operand                {$$ = $1;}
      ;
 
 operand: TK_IDENTIFICADOR     {$$ = createNodo($1);
-                              $$->valor_lexico->natureza = OPERAND;}
-     | literal                {$$ = $1;}
+                              $$->valor_lexico->natureza = OPERAND;
+                              insereValorLexicoNoTopoDaPilha(pilha, $$->valor_lexico);}
+     | literal                {$$ = $1;
+                              $$->valor_lexico->natureza = LITERAL;}
      | fcall                  {$$ = $1;}
      ;
-literal: TK_LIT_INT           {$$ = createNodo($1);
-                              $$->valor_lexico->natureza = LITERAL;}
-     | TK_LIT_FLOAT           {$$ = createNodo($1);
-                              $$->valor_lexico->natureza = LITERAL;}
-     | TK_LIT_FALSE           {$$ = createNodo($1);
-                              $$->valor_lexico->natureza = LITERAL;}
-     | TK_LIT_TRUE            {$$ = createNodo($1);
-                              $$->valor_lexico->natureza = LITERAL;}
+literal: TK_LIT_INT           {$1->natureza = LITERAL;
+                              $$ = createNodo($1);
+                              insereValorLexicoNoTopoDaPilha(pilha, $$->valor_lexico);}
+     | TK_LIT_FLOAT           {$1->natureza = LITERAL;
+                              $$ = createNodo($1);
+                              insereValorLexicoNoTopoDaPilha(pilha, $$->valor_lexico);}
+     | TK_LIT_FALSE           {$1->natureza = LITERAL;
+                              $$ = createNodo($1);
+                              insereValorLexicoNoTopoDaPilha(pilha, $$->valor_lexico);}
+     | TK_LIT_TRUE            {$1->natureza = LITERAL;
+                              $$ = createNodo($1);
+                              insereValorLexicoNoTopoDaPilha(pilha, $$->valor_lexico);}
      ;
 
 abrir_escopo_global:  /*Vazio*/    { $$ = NULL;

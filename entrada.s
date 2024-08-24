@@ -1,11 +1,17 @@
 	.file	"entrada.c"
 	.text
-	.globl	a
+	.globl	z
 	.bss
 	.align 4
-	.type	a, @object
-	.size	a, 4
-a:
+	.type	z, @object
+	.size	z, 4
+z:
+	.zero	4
+	.globl	k
+	.align 4
+	.type	k, @object
+	.size	k, 4
+k:
 	.zero	4
 	.text
 	.globl	main
@@ -15,16 +21,10 @@ main:
 	.cfi_startproc
 	endbr64
 	pushq	%rbp
-
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
 	movq	%rsp, %rbp
-
-	movl	$3, -8(%rbp) 		b = 3
-
-	movl	$4, -4(%rbp) 		c = 4 
-
-	movl	-8(%rbp), %eax 		a = b
-	movl	%eax, a(%rip)		
-
+	.cfi_def_cfa_register 6
 	movl	$0, %eax
 	popq	%rbp
 	.cfi_def_cfa 7, 8
@@ -32,24 +32,6 @@ main:
 	.cfi_endproc
 .LFE0:
 	.size	main, .-main
-	.globl	notmain
-	.type	notmain, @function
-notmain:
-.LFB1:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movl	$2, %eax
-	popq	%rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE1:
-	.size	notmain, .-notmain
 	.ident	"GCC: (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0"
 	.section	.note.GNU-stack,"",@progbits
 	.section	.note.gnu.property,"a"
